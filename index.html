@@ -89,8 +89,22 @@
       .herometa {
         display: flex;
         flex-wrap: wrap;
+        align-items: center;
         gap: 10px 10px;
         margin-top: 16px;
+      }
+      .metricintro {
+        font-size: 12.5px;
+        font-weight: 600;
+        color: var(--ink);
+        margin-right: 2px;
+      }
+      .metricgloss {
+        font-size: 12.5px;
+        color: var(--muted);
+        line-height: 1.5;
+        margin: 9px 0 0;
+        max-width: 76ch;
       }
       .tag {
         font-family: var(--font-mono);
@@ -290,6 +304,30 @@
       .fidcard p { margin: 7px 0 0; font-size: 12.5px; line-height: 1.5; color: var(--muted); }
       .fidcard a { font-size: 12px; font-weight: 500; display: inline-block; margin-top: auto; padding-top: 11px; }
 
+      .fidspan {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-left: 3px solid var(--accent);
+        border-radius: 6px;
+        padding: 14px 16px 15px;
+        margin-top: 18px;
+      }
+      .fidspan h3 {
+        font-family: var(--font-mono);
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0;
+        color: var(--accent-ink);
+      }
+      .fidspan p {
+        margin: 7px 0 0;
+        font-size: 12.5px;
+        line-height: 1.5;
+        color: var(--muted);
+        max-width: 92ch;
+      }
+      .fidspan a { font-size: 12px; font-weight: 500; display: inline-block; margin-top: 9px; }
+
       /* ---- publications ---- */
       .pubs { display: flex; flex-direction: column; gap: 0; }
       .pub {
@@ -357,6 +395,7 @@
       .footnote b { color: var(--ink); }
       .footmeta { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; font-size: 12px; }
       .ghlink { display: inline-flex; align-items: center; gap: 6px; color: var(--accent); font-weight: 500; }
+      .linkgloss { color: var(--muted); font-weight: 400; }
       .ghlink svg { vertical-align: middle; flex: none; }
 
       @media (max-width: 640px) {
@@ -390,18 +429,23 @@
         <div class="wrap heroinner">
           <h1>Know how a serving configuration performs before you book the accelerators.</h1>
           <p class="lede">
-            BLIS prices one forward pass from a model graph, a chip and calibrated coefficients,
-            then sweeps that over configurations: tensor parallelism, instance counts, batch
-            limits. It predicts fleet throughput, per-user token rate and tail latency for a given
-            model, accelerator budget and workload.
+            BLIS is a discrete-event simulator for LLM serving. It models admission, routing,
+            scheduling, batching and KV-cache behaviour on a CPU, pricing each forward pass from a
+            model graph, a chip and calibrated coefficients, then sweeps that over configurations:
+            tensor parallelism, instance counts, batch limits.
           </p>
           <div class="herometa">
-            <span class="tag">tok/s/GPU</span>
-            <span class="tag">per-user tok/s</span>
-            <span class="tag">TTFT p99</span>
-            <span class="tag">TPOT</span>
-            <span class="tag">E2E p95</span>
+            <span class="metricintro">Metrics it predicts</span>
+            <span class="tag" title="Output tokens per second per accelerator">tok/s per accelerator</span>
+            <span class="tag" title="Output tokens per second a single session sees">per-user tok/s</span>
+            <span class="tag" title="Time to first token, 99th percentile">TTFT p99</span>
+            <span class="tag" title="Time per output token, the gap between output tokens">TPOT</span>
+            <span class="tag" title="End-to-end request latency, 95th percentile">E2E p95</span>
           </div>
+          <p class="metricgloss">
+            TTFT is time to first token, TPOT the time per output token, E2E the end-to-end request
+            latency.
+          </p>
         </div>
       </section>
 
@@ -520,9 +564,9 @@
                   </svg>
                 </div>
                 <div class="cardbody">
-                  <h3>inference-sim</h3>
+                  <h3>inference-sim/inference-sim</h3>
                   <p>
-                    The simulator itself: the cost model, the calibration data and the Go
+                    The simulator repository: the discrete-event engine, the cost model and the Go
                     implementation that prices one forward pass from a model graph and a chip.
                   </p>
                   <div class="cardfoot">
@@ -545,7 +589,7 @@
               A prediction is only worth as much as what went into it. The pieces below are
               separate, versioned repositories rather than one bundle, so a number on this site can
               be traced to the catalog entry it came from, the coefficient set in force at the
-              time, and the kernel that priced it. The
+              time, the engine release modelled, and the kernel that priced it. The
               <a href="https://inference-sim.github.io/accuracy-dashboard/">accuracy dashboard</a>
               then reports how far those predictions sat from measured runs, per model.
             </p>
@@ -569,11 +613,20 @@
                 <a href="https://github.com/inference-sim/blis-latency-kernel">view repository</a>
               </div>
               <div class="fidcard">
-                <h3>blis-schemas</h3>
-                <p>The contracts between the three above: models, hardware, coefficients,
-                  deployments and the kernel interface.</p>
-                <a href="https://github.com/inference-sim/blis-schemas">view repository</a>
+                <h3>blis-vllm</h3>
+                <p>A model of the vLLM engine's scheduling, KV-cache and metrics behaviour, pinned
+                  to one vLLM release and differential-tested against vLLM itself.</p>
+                <a href="https://github.com/inference-sim/blis-vllm">view repository</a>
               </div>
+            </div>
+            <div class="fidspan">
+              <h3>blis-schemas</h3>
+              <p>
+                The contracts between the four above: models, hardware, coefficients, deployments
+                and the engine and kernel interfaces. Nothing passes between them except through a
+                schema defined here.
+              </p>
+              <a href="https://github.com/inference-sim/blis-schemas">view repository</a>
             </div>
           </div>
         </section>
@@ -588,7 +641,7 @@
               <figure>
                 <div class="figscroll">
                 <svg viewBox="0 0 980 330" role="img"
-                  aria-label="Pipeline annotated with the repository behind each stage. Model graph and chip come from blis-catalog, calibration coefficients from blis-registry; blis-latency-kernel prices one forward pass; the sweep calls that kernel once per candidate and scores each under the workload; a dominance filter drops any candidate beaten on every metric, leaving the Pareto frontier. blis-schemas defines the contracts between every stage.">
+                  aria-label="Pipeline annotated with the repository behind each stage. Model graph and chip come from blis-catalog, calibration coefficients from blis-registry; blis-latency-kernel prices one forward pass; the sweep calls that kernel once per candidate and scores each under the workload; a filter drops any candidate that another matches or beats on every metric while winning on at least one, leaving the frontier. blis-schemas defines the contracts between every stage.">
                   <defs>
                     <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5"
                       markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -633,9 +686,9 @@
                   <text class="dsub" x="266" y="146">analytic + learned</text>
                   <text class="drepo" x="266" y="164">blis-latency-kernel</text>
 
-                  <path d="M422 131H490" stroke="var(--accent)" stroke-width="1.5"
+                  <path d="M422 131H484" stroke="var(--accent)" stroke-width="1.5"
                     fill="none" marker-end="url(#aha)" />
-                  <text class="dedge" x="432" y="123">ms / pass</text>
+                  <text class="dedge" x="432" y="123">milliseconds per pass</text>
 
                   <rect x="496" y="34" width="206" height="194" rx="6"
                     fill="var(--panel)" stroke="var(--line-strong)" stroke-width="1.25" />
@@ -660,26 +713,17 @@
                     fill="none" marker-end="url(#ah)" />
                   <text class="dedge" x="706" y="123">scored</text>
 
-                  <rect x="760" y="34" width="206" height="194" rx="6"
+<rect x="760" y="34" width="206" height="194" rx="6"
                     fill="var(--panel)" stroke="var(--line-strong)" stroke-width="1.25" />
-                  <text class="dlabel" x="774" y="58">drop the dominated</text>
-                  <text class="dsub" x="774" y="74">beaten on every metric</text>
-                  <g stroke="var(--line-strong)" stroke-width="1" fill="none">
-                    <path d="M780 190V96H952" />
-                  </g>
-                  <g fill="var(--line-strong)">
-                    <circle cx="806" cy="178" r="2.5" /><circle cx="834" cy="170" r="2.5" />
-                    <circle cx="862" cy="176" r="2.5" /><circle cx="890" cy="168" r="2.5" />
-                    <circle cx="918" cy="180" r="2.5" /><circle cx="820" cy="162" r="2.5" />
-                    <circle cx="876" cy="160" r="2.5" /><circle cx="932" cy="172" r="2.5" />
-                  </g>
-                  <path d="M796 112C846 116 896 130 944 152" fill="none"
-                    stroke="var(--accent)" stroke-width="1.75" stroke-linecap="round" />
-                  <g fill="var(--accent)">
-                    <circle cx="796" cy="112" r="3.5" /><circle cx="846" cy="117" r="3.5" />
-                    <circle cx="894" cy="129" r="3.5" /><circle cx="944" cy="152" r="3.5" />
-                  </g>
-                  <text class="dsub" x="774" y="204">what is left is the frontier</text>
+                  <text class="dlabel" x="774" y="58">drop the strictly worse</text>
+                  <text class="dsub" x="774" y="80">if another candidate matches</text>
+                  <text class="dsub" x="774" y="96">or beats this one on every</text>
+                  <text class="dsub" x="774" y="112">metric, and wins on at least</text>
+                  <text class="dsub" x="774" y="128">one, this one is dropped.</text>
+                  <text class="dsub" x="774" y="156">Nothing left is strictly</text>
+                  <text class="dsub" x="774" y="172">worse than anything else:</text>
+                  <text class="dsub" x="774" y="188">that set is the frontier,</text>
+                  <text class="dsub" x="774" y="204">plotted in config-search.</text>
 
                   <path d="M14 300H966" stroke="var(--line)" stroke-width="1" fill="none" />
                   <text class="drepo" x="14" y="320">blis-schemas</text>
@@ -688,7 +732,7 @@
                 </div>
                 <p class="fighint">Scroll the diagram sideways to follow the flow.</p>
                 <figcaption>
-                  <span class="claim">One cost-model call per candidate, then a dominance filter.</span>
+                  <span class="claim">One cost-model call per candidate, then drop the strictly worse ones.</span>
                   <span class="gloss">
                     Coefficients are fitted once and reused, so no per-model or per-accelerator
                     profiling run is needed. Each stage is a separate versioned repository, so any
@@ -818,6 +862,7 @@
                 <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.42 7.42 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A7.995 7.995 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/>
               </svg>
               github.com/inference-sim
+              <span class="linkgloss">all BLIS repositories</span>
             </a>
           </div>
         </div>
