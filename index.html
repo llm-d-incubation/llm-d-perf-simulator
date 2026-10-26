@@ -20,9 +20,10 @@
         --accent: #1f6e5c;
         --accent-ink: #0f4438;
         --accent-soft: #d9e9e1;
+        --over-ink: #a3301f;
         --font-sans: "IBM Plex Sans", -apple-system, "Segoe UI", system-ui, sans-serif;
         --font-mono: "IBM Plex Mono", "SFMono-Regular", ui-monospace, Menlo, monospace;
-        --measure: 1040px;
+        --measure: 1160px;
       }
       html, body { color-scheme: light; }
       * { box-sizing: border-box; }
@@ -61,12 +62,12 @@
         max-width: 72ch;
       }
 
-      .main { flex: 1 0 auto; max-width: var(--measure); margin: 0 auto; width: 100%; padding: 30px 40px 56px; }
+      .main { flex: 1 0 auto; max-width: var(--measure); margin: 0 auto; width: 100%; padding: 32px 40px 56px; }
 
       .cards {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(min(290px, 100%), 1fr));
-        gap: 16px;
+        grid-template-columns: repeat(auto-fit, minmax(min(330px, 100%), 1fr));
+        gap: 20px;
         align-content: start;
       }
       .card {
@@ -74,20 +75,36 @@
         border: 1px solid var(--line);
         border-top: 3px solid var(--accent);
         border-radius: 8px;
-        padding: 15px 17px 16px;
+        padding: 0;
+        overflow: hidden;
         display: flex;
         flex-direction: column;
         color: var(--ink);
-        transition: box-shadow 0.1s, transform 0.1s;
+        transition: box-shadow 0.12s, transform 0.12s;
       }
       .card:hover {
         text-decoration: none;
-        transform: translateY(-1px);
-        box-shadow: 0 2px 10px rgba(23, 28, 26, 0.09);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(23, 28, 26, 0.1);
       }
+      .plate {
+        background: var(--paper);
+        border-bottom: 1px solid var(--line);
+        padding: 14px 16px 10px;
+      }
+      .plate svg { display: block; width: 100%; height: auto; }
+      .platelabel {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.07em;
+        color: var(--muted);
+        margin: 0 0 8px;
+      }
+      .cardbody { padding: 16px 18px 17px; display: flex; flex-direction: column; flex: 1; }
       .card h2 {
         font-family: var(--font-mono);
-        font-size: 14.5px;
+        font-size: 15.5px;
         font-weight: 600;
         letter-spacing: -0.005em;
         margin: 0;
@@ -95,20 +112,20 @@
       }
       .card p {
         color: var(--muted);
-        font-size: 13px;
+        font-size: 13.5px;
         line-height: 1.5;
-        margin: 8px 0 0;
+        margin: 9px 0 0;
       }
       .cardfoot {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 10px;
-        margin-top: 16px;
-        padding-top: 12px;
-        border-top: 1px solid var(--line);
+        margin-top: auto;
+        padding-top: 14px;
       }
-      .open { font-size: 12.5px; font-weight: 600; color: var(--accent); }
+      .cardfoot-rule { border-top: 1px solid var(--line); margin-top: 16px; }
+      .open { font-size: 13px; font-weight: 600; color: var(--accent); }
       .card:hover .open { color: var(--accent-ink); }
       .pill {
         font-family: var(--font-mono);
@@ -120,7 +137,6 @@
         font-size: 11px;
         display: inline-block;
       }
-      .ghmark { color: var(--muted); flex: none; }
 
       footer { border-top: 1px solid var(--line); background: var(--panel); }
       .footinner { max-width: var(--measure); margin: 0 auto; width: 100%; padding: 18px 40px 26px; }
@@ -168,33 +184,118 @@
       <main class="main">
         <div class="cards">
           <a class="card" href="https://inference-sim.github.io/blis-config-search/">
-            <h2>config-search</h2>
-            <p>
-              Pareto-optimal serving configurations for a model, GPU budget and workload — each a
-              full interactive report.
-            </p>
-            <div class="cardfoot">
-              <span class="open">open reports</span>
+            <div class="plate">
+              <p class="platelabel">cost / throughput</p>
+              <svg viewBox="0 0 340 150" role="img" aria-label="Scatter plot of candidate configurations with the Pareto frontier traced along the lower edge.">
+                <g stroke="var(--line-strong)" stroke-width="1" fill="none">
+                  <path d="M28 14V126H326" />
+                </g>
+                <g fill="var(--line-strong)">
+                  <circle cx="62" cy="106" r="2.5" /><circle cx="84" cy="98" r="2.5" />
+                  <circle cx="72" cy="118" r="2.5" /><circle cx="106" cy="104" r="2.5" />
+                  <circle cx="98" cy="88" r="2.5" /><circle cx="124" cy="92" r="2.5" />
+                  <circle cx="118" cy="114" r="2.5" /><circle cx="142" cy="80" r="2.5" />
+                  <circle cx="150" cy="100" r="2.5" /><circle cx="164" cy="90" r="2.5" />
+                  <circle cx="172" cy="110" r="2.5" /><circle cx="186" cy="74" r="2.5" />
+                  <circle cx="196" cy="94" r="2.5" /><circle cx="208" cy="84" r="2.5" />
+                  <circle cx="218" cy="106" r="2.5" /><circle cx="232" cy="70" r="2.5" />
+                  <circle cx="244" cy="90" r="2.5" /><circle cx="256" cy="78" r="2.5" />
+                  <circle cx="268" cy="98" r="2.5" /><circle cx="282" cy="66" r="2.5" />
+                  <circle cx="294" cy="86" r="2.5" /><circle cx="306" cy="74" r="2.5" />
+                </g>
+                <path
+                  d="M52 96L92 72L134 56L178 44L222 36L264 30L304 27"
+                  fill="none" stroke="var(--accent)" stroke-width="1.75"
+                  stroke-linecap="round" stroke-linejoin="round" />
+                <g fill="var(--accent)">
+                  <circle cx="52" cy="96" r="3.5" /><circle cx="92" cy="72" r="3.5" />
+                  <circle cx="134" cy="56" r="3.5" /><circle cx="178" cy="44" r="3.5" />
+                  <circle cx="222" cy="36" r="3.5" /><circle cx="264" cy="30" r="3.5" />
+                  <circle cx="304" cy="27" r="3.5" />
+                </g>
+              </svg>
+            </div>
+            <div class="cardbody">
+              <h2>config-search</h2>
+              <p>
+                Pareto-optimal serving configurations for a model, GPU budget and workload — each a
+                full interactive report.
+              </p>
+              <div class="cardfoot cardfoot-rule">
+                <span class="open">open reports</span>
+              </div>
             </div>
           </a>
 
           <a class="card" href="https://inference-sim.github.io/accuracy-dashboard/">
-            <h2>accuracy</h2>
-            <p>
-              How closely predictions track measured latency, checked against benchmark runs on the
-              same model, hardware and load.
-            </p>
-            <div class="cardfoot">
-              <span class="open">open dashboard</span>
+            <div class="plate">
+              <p class="platelabel">predicted / measured</p>
+              <svg viewBox="0 0 340 150" role="img" aria-label="Scatter plot of predicted against measured latency, clustered along the parity line.">
+                <g stroke="var(--line-strong)" stroke-width="1" fill="none">
+                  <path d="M28 14V126H326" />
+                  <path d="M28 126L326 18" stroke-dasharray="4 4" />
+                </g>
+                <g fill="var(--accent)">
+                  <circle cx="58" cy="112" r="3" /><circle cx="84" cy="105" r="3" />
+                  <circle cx="104" cy="94" r="3" /><circle cx="122" cy="90" r="3" />
+                  <circle cx="134" cy="88" r="3" /><circle cx="158" cy="80" r="3" />
+                  <circle cx="176" cy="70" r="3" /><circle cx="194" cy="66" r="3" />
+                  <circle cx="212" cy="56" r="3" /><circle cx="230" cy="52" r="3" />
+                  <circle cx="252" cy="44" r="3" /><circle cx="266" cy="40" r="3" />
+                  <circle cx="284" cy="32" r="3" /><circle cx="306" cy="26" r="3" />
+                </g>
+                <g fill="var(--over-ink)">
+                  <circle cx="146" cy="62" r="3" /><circle cx="224" cy="78" r="3" />
+                </g>
+              </svg>
+            </div>
+            <div class="cardbody">
+              <h2>accuracy</h2>
+              <p>
+                How closely predictions track measured latency, checked against benchmark runs on
+                the same model, hardware and load.
+              </p>
+              <div class="cardfoot cardfoot-rule">
+                <span class="open">open dashboard</span>
+              </div>
             </div>
           </a>
 
           <a class="card" href="https://github.com/inference-sim/inference-sim">
-            <h2>inference-sim</h2>
-            <p>The simulator itself — source, cost model and calibration data.</p>
-            <div class="cardfoot">
-              <span class="open">view source</span>
-              <span class="pill">Apache-2.0</span>
+            <div class="plate">
+              <p class="platelabel">graph + chip → latency</p>
+              <svg viewBox="0 0 340 150" role="img" aria-label="Schematic: a model graph and a chip feed a calibrated cost model that prices one forward pass.">
+                <g stroke="var(--line-strong)" stroke-width="1.5" fill="none">
+                  <path d="M52 40L92 75L52 75M52 110L92 75" />
+                  <path d="M104 75H126" />
+                  <path d="M212 75H234" />
+                </g>
+                <g fill="var(--panel)" stroke="var(--accent)" stroke-width="1.75">
+                  <circle cx="52" cy="40" r="8" /><circle cx="52" cy="75" r="8" />
+                  <circle cx="52" cy="110" r="8" />
+                </g>
+                <circle cx="92" cy="75" r="8" fill="var(--accent)" />
+                <rect
+                  x="134" y="45" width="72" height="60" rx="6"
+                  fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.75" />
+                <g stroke="var(--accent)" stroke-width="1.5" fill="none">
+                  <path d="M134 60h-8M134 75h-8M134 90h-8M206 60h8M206 75h8M206 90h8" />
+                </g>
+                <rect x="152" y="64" width="36" height="22" rx="2" fill="var(--accent)" />
+                <g fill="var(--accent)">
+                  <rect x="242" y="50" width="70" height="13" rx="2" />
+                  <rect x="242" y="69" width="48" height="13" rx="2" />
+                  <rect x="242" y="88" width="28" height="13" rx="2" opacity="0.55" />
+                </g>
+              </svg>
+            </div>
+            <div class="cardbody">
+              <h2>inference-sim</h2>
+              <p>The simulator itself — source, cost model and calibration data.</p>
+              <div class="cardfoot cardfoot-rule">
+                <span class="open">view source</span>
+                <span class="pill">Apache-2.0</span>
+              </div>
             </div>
           </a>
         </div>
