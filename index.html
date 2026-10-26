@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BLIS · blackbox inference simulator</title>
+    <meta name="description" content="BLIS predicts LLM inference-serving latency and throughput for a model, GPU budget and workload — without standing up the hardware." />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f6e5c'/%3E%3Cpath d='M7 23l6-7 5 4 7-10' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" />
+    <style>
+      :root {
+        --paper: #f7f9f6;
+        --panel: #fff;
+        --ink: #171c1a;
+        --muted: #5b6660;
+        --line: #e3e7df;
+        --line-strong: #c3ccbf;
+        --accent: #1f6e5c;
+        --accent-ink: #0f4438;
+        --accent-soft: #d9e9e1;
+        --font-sans: "IBM Plex Sans", -apple-system, "Segoe UI", system-ui, sans-serif;
+        --font-mono: "IBM Plex Mono", "SFMono-Regular", ui-monospace, Menlo, monospace;
+        --measure: 1040px;
+      }
+      html, body { color-scheme: light; }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: var(--font-sans);
+        font-size: 15px;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+      }
+      a { color: var(--accent); text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+      .mono { font-family: var(--font-mono); }
+
+      .page { min-height: 100vh; display: flex; flex-direction: column; }
+
+      .masthead { border-bottom: 1.5px solid var(--line-strong); background: var(--panel); }
+      .mastinner { max-width: var(--measure); margin: 0 auto; width: 100%; padding: 30px 40px 26px; }
+      .mastinner h1 {
+        margin: 0;
+        font-size: 23px;
+        font-weight: 600;
+        letter-spacing: -0.015em;
+        text-wrap: balance;
+      }
+      .mastinner h1 b { color: var(--accent); font-weight: 600; }
+      .dek {
+        color: var(--muted);
+        font-size: 13.5px;
+        line-height: 1.45;
+        margin: 6px 0 0;
+        max-width: 72ch;
+      }
+
+      .main { flex: 1 0 auto; max-width: var(--measure); margin: 0 auto; width: 100%; padding: 30px 40px 56px; }
+
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(min(290px, 100%), 1fr));
+        gap: 16px;
+        align-content: start;
+      }
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-top: 3px solid var(--accent);
+        border-radius: 8px;
+        padding: 15px 17px 16px;
+        display: flex;
+        flex-direction: column;
+        color: var(--ink);
+        transition: box-shadow 0.1s, transform 0.1s;
+      }
+      .card:hover {
+        text-decoration: none;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 10px rgba(23, 28, 26, 0.09);
+      }
+      .card h2 {
+        font-family: var(--font-mono);
+        font-size: 14.5px;
+        font-weight: 600;
+        letter-spacing: -0.005em;
+        margin: 0;
+        color: var(--accent-ink);
+      }
+      .card p {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.5;
+        margin: 8px 0 0;
+      }
+      .cardfoot {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-top: 16px;
+        padding-top: 12px;
+        border-top: 1px solid var(--line);
+      }
+      .open { font-size: 12.5px; font-weight: 600; color: var(--accent); }
+      .card:hover .open { color: var(--accent-ink); }
+      .pill {
+        font-family: var(--font-mono);
+        background: var(--accent-soft);
+        color: var(--accent-ink);
+        border: 1px solid var(--accent);
+        border-radius: 3px;
+        padding: 2px 7px;
+        font-size: 11px;
+        display: inline-block;
+      }
+      .ghmark { color: var(--muted); flex: none; }
+
+      footer { border-top: 1px solid var(--line); background: var(--panel); }
+      .footinner { max-width: var(--measure); margin: 0 auto; width: 100%; padding: 18px 40px 26px; }
+      .footnote {
+        margin: 0 0 12px;
+        font-size: 12.5px;
+        color: var(--muted);
+        line-height: 1.55;
+        max-width: 90ch;
+      }
+      .footnote b { color: var(--ink); }
+      .footmeta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px 16px;
+        align-items: center;
+        font-size: 12px;
+      }
+      .ghlink { display: inline-flex; align-items: center; gap: 6px; color: var(--accent); font-weight: 500; }
+      .ghlink svg { vertical-align: middle; flex: none; }
+
+      @media (max-width: 640px) {
+        .mastinner, .main, .footinner { padding-left: 16px; padding-right: 16px; }
+        .mastinner { padding-top: 24px; padding-bottom: 22px; }
+        .mastinner h1 { font-size: 20px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .card { transition: none; }
+        .card:hover { transform: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="masthead">
+        <div class="mastinner">
+          <h1><b>BLIS</b> · blackbox inference simulator</h1>
+          <p class="dek">
+            Predicts LLM inference-serving latency and throughput for a model, GPU budget and
+            workload — without standing up the hardware.
+          </p>
+        </div>
+      </header>
+
+      <main class="main">
+        <div class="cards">
+          <a class="card" href="https://inference-sim.github.io/blis-config-search/">
+            <h2>config-search</h2>
+            <p>
+              Pareto-optimal serving configurations for a model, GPU budget and workload — each a
+              full interactive report.
+            </p>
+            <div class="cardfoot">
+              <span class="open">open reports</span>
+            </div>
+          </a>
+
+          <a class="card" href="https://inference-sim.github.io/accuracy-dashboard/">
+            <h2>accuracy</h2>
+            <p>
+              How closely predictions track measured latency, checked against benchmark runs on the
+              same model, hardware and load.
+            </p>
+            <div class="cardfoot">
+              <span class="open">open dashboard</span>
+            </div>
+          </a>
+
+          <a class="card" href="https://github.com/inference-sim/inference-sim">
+            <h2>inference-sim</h2>
+            <p>The simulator itself — source, cost model and calibration data.</p>
+            <div class="cardfoot">
+              <span class="open">view source</span>
+              <span class="pill">Apache-2.0</span>
+            </div>
+          </a>
+        </div>
+      </main>
+
+      <footer>
+        <div class="footinner">
+          <p class="footnote">
+            <b>Simulator predictions, not measured results.</b> The reports and dashboards here are
+            generated from recorded runs; no server runs at view time. Validate against your own
+            hardware before deploying.
+          </p>
+          <div class="footmeta">
+            <a class="ghlink" href="https://github.com/inference-sim">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.42 7.42 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A7.995 7.995 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/>
+              </svg>
+              github.com/inference-sim
+            </a>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>
