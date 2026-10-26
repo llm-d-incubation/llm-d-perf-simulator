@@ -223,16 +223,32 @@
       @media (max-width: 940px) {
         .fighint { display: block; }
         .figwrap { padding-left: 16px; padding-right: 16px; }
+        .figwrap figcaption .gloss { max-width: none; }
+      }
+      @media (max-width: 560px) {
+        .figwrap figcaption .claim { font-size: 12.5px; text-wrap: balance; }
       }
       .figwrap figcaption {
+        margin: 16px auto 0;
+        max-width: 1000px;
+      }
+      .figwrap figcaption .claim {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--ink);
+        letter-spacing: -0.005em;
+        line-height: 1.45;
+      }
+      .figwrap figcaption .gloss {
+        display: block;
         font-size: 12.5px;
         color: var(--muted);
         line-height: 1.55;
-        margin: 16px auto 0;
-        max-width: 78ch;
-        text-align: center;
+        margin-top: 5px;
+        max-width: 88ch;
+        text-wrap: balance;
       }
-      .figwrap figcaption b { color: var(--ink); font-weight: 600; }
       .dlabel { font-family: var(--font-mono); font-size: 11.5px; font-weight: 600; fill: var(--accent-ink); }
       .dsub { font-family: var(--font-mono); font-size: 10px; fill: var(--muted); }
       .dedge { font-family: var(--font-mono); font-size: 10px; fill: var(--muted); }
@@ -672,11 +688,12 @@
                 </div>
                 <p class="fighint">Scroll the diagram sideways to follow the flow.</p>
                 <figcaption>
-                  <b>One cost-model call per candidate, then a dominance filter.</b> Coefficients
-                  are fitted once and reused, so no per-model or per-accelerator profiling run is
-                  needed. Each stage is a separate versioned repository, so any number on this site
-                  can be traced back to the catalog entry, coefficient set and kernel that produced
-                  it.
+                  <span class="claim">One cost-model call per candidate, then a dominance filter.</span>
+                  <span class="gloss">
+                    Coefficients are fitted once and reused, so no per-model or per-accelerator
+                    profiling run is needed. Each stage is a separate versioned repository, so any
+                    number here traces back to the catalog entry, coefficients and kernel behind it.
+                  </span>
                 </figcaption>
               </figure>
             </div>
