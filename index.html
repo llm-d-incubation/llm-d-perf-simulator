@@ -208,7 +208,7 @@
       .figwrap svg {
         display: block;
         width: 100%;
-        min-width: 860px;
+        min-width: 880px;
         height: auto;
         max-width: 1000px;
         margin: 0 auto;
@@ -237,6 +237,42 @@
       .dsub { font-family: var(--font-mono); font-size: 10px; fill: var(--muted); }
       .dedge { font-family: var(--font-mono); font-size: 10px; fill: var(--muted); }
       .dstage { font-family: var(--font-sans); font-size: 10px; font-weight: 600; fill: var(--muted); letter-spacing: 0.07em; }
+      .drepo { font-family: var(--font-mono); font-size: 9.5px; font-weight: 600; fill: var(--accent); }
+
+      /* ---- fidelity ---- */
+      .fid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr));
+        gap: 18px;
+        align-items: stretch;
+      }
+      .fidnote {
+        font-size: 14px;
+        line-height: 1.6;
+        color: var(--muted);
+        margin: 0 0 20px;
+        max-width: 86ch;
+      }
+      .fidnote b { color: var(--ink); font-weight: 600; }
+      .fidcard {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-left: 3px solid var(--accent);
+        border-radius: 6px;
+        padding: 14px 16px 15px;
+      }
+      .fidcard h3 {
+        font-family: var(--font-mono);
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0;
+        color: var(--accent-ink);
+      }
+      .fidcard p { margin: 7px 0 0; font-size: 12.5px; line-height: 1.5; color: var(--muted); }
+      .fidcard a { font-size: 12px; font-weight: 500; display: inline-block; margin-top: auto; padding-top: 11px; }
 
       /* ---- publications ---- */
       .pubs { display: flex; flex-direction: column; gap: 0; }
@@ -288,6 +324,7 @@
         padding: 20px 22px 21px;
       }
       .fits p { margin: 0; font-size: 14px; line-height: 1.6; color: var(--muted); max-width: 86ch; }
+      .fits p + p { margin-top: 12px; }
       .fits p b { color: var(--ink); font-weight: 600; }
       .fits .links { display: flex; flex-wrap: wrap; gap: 10px 20px; margin-top: 15px; font-size: 13px; }
 
@@ -485,14 +522,57 @@
         <section class="section">
           <div class="wrap">
             <div class="sectionhead">
+              <h2>How the numbers stay honest</h2>
+              <span class="note">Every figure traces back to a versioned input.</span>
+            </div>
+            <p class="fidnote">
+              A prediction is only worth as much as what went into it. The pieces below are
+              separate, versioned repositories rather than one bundle, so a number on this site can
+              be traced to the catalog entry it came from, the coefficient set in force at the
+              time, and the kernel that priced it. The
+              <a href="https://inference-sim.github.io/accuracy-dashboard/">accuracy dashboard</a>
+              then reports how far those predictions sat from measured runs, per model.
+            </p>
+            <div class="fid">
+              <div class="fidcard">
+                <h3>blis-catalog</h3>
+                <p>Models, hardware and workload types. Pinned and read-authoritative, so a
+                  scenario means the same thing on every run.</p>
+                <a href="https://github.com/inference-sim/blis-catalog">view repository</a>
+              </div>
+              <div class="fidcard">
+                <h3>blis-registry</h3>
+                <p>Calibration coefficients, versioned. Fitted globally and reused, which is what
+                  removes the per-model profiling run.</p>
+                <a href="https://github.com/inference-sim/blis-registry">view repository</a>
+              </div>
+              <div class="fidcard">
+                <h3>blis-latency-kernel</h3>
+                <p>Prices one forward pass from a model graph, a chip and the coefficients. Every
+                  step time and memory figure comes from here.</p>
+                <a href="https://github.com/inference-sim/blis-latency-kernel">view repository</a>
+              </div>
+              <div class="fidcard">
+                <h3>blis-schemas</h3>
+                <p>The contracts between the three above: models, hardware, coefficients,
+                  deployments and the kernel interface.</p>
+                <a href="https://github.com/inference-sim/blis-schemas">view repository</a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="wrap">
+            <div class="sectionhead">
               <h2>How a prediction is made</h2>
               <span class="note">No accelerator is touched at any stage.</span>
             </div>
             <div class="figwrap">
               <figure>
                 <div class="figscroll">
-                <svg viewBox="0 0 980 300" role="img"
-                  aria-label="Pipeline: a model graph, a chip and fitted coefficients feed a cost model that prices one forward pass. A configuration sweep calls that cost model once per candidate, scoring each under the workload, and the scored candidates pass through a dominance filter that drops any candidate beaten on every metric, leaving the Pareto frontier.">
+                <svg viewBox="0 0 980 330" role="img"
+                  aria-label="Pipeline annotated with the repository behind each stage. Model graph and chip come from blis-catalog, calibration coefficients from blis-registry; blis-latency-kernel prices one forward pass; the sweep calls that kernel once per candidate and scores each under the workload; a dominance filter drops any candidate beaten on every metric, leaving the Pareto frontier. blis-schemas defines the contracts between every stage.">
                   <defs>
                     <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5"
                       markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -505,88 +585,98 @@
                   </defs>
 
                   <text class="dstage" x="14" y="20">INPUTS</text>
-                  <text class="dstage" x="238" y="20">COST MODEL</text>
-                  <text class="dstage" x="470" y="20">SWEEP</text>
-                  <text class="dstage" x="742" y="20">FILTER</text>
+                  <text class="dstage" x="252" y="20">COST MODEL</text>
+                  <text class="dstage" x="496" y="20">SWEEP</text>
+                  <text class="dstage" x="760" y="20">FILTER</text>
 
                   <g fill="var(--paper)" stroke="var(--line-strong)" stroke-width="1.25">
-                    <rect x="14" y="36" width="150" height="40" rx="5" />
-                    <rect x="14" y="88" width="150" height="40" rx="5" />
-                    <rect x="14" y="140" width="150" height="40" rx="5" />
+                    <rect x="14" y="34" width="168" height="58" rx="5" />
+                    <rect x="14" y="102" width="168" height="58" rx="5" />
+                    <rect x="14" y="170" width="168" height="58" rx="5" />
                   </g>
-                  <text class="dlabel" x="28" y="55">model graph</text>
-                  <text class="dsub" x="28" y="69">layers, widths, MoE</text>
-                  <text class="dlabel" x="28" y="107">chip</text>
-                  <text class="dsub" x="28" y="121">flops, bandwidth, HBM</text>
-                  <text class="dlabel" x="28" y="159">coefficients</text>
-                  <text class="dsub" x="28" y="173">globally fitted, once</text>
+                  <text class="dlabel" x="28" y="53">model graph</text>
+                  <text class="dsub" x="28" y="68">layers, widths, MoE</text>
+                  <text class="drepo" x="28" y="84">blis-catalog</text>
+                  <text class="dlabel" x="28" y="121">chip</text>
+                  <text class="dsub" x="28" y="136">flops, bandwidth, HBM</text>
+                  <text class="drepo" x="28" y="152">blis-catalog</text>
+                  <text class="dlabel" x="28" y="189">coefficients</text>
+                  <text class="dsub" x="28" y="204">fitted once, versioned</text>
+                  <text class="drepo" x="28" y="220">blis-registry</text>
 
                   <g stroke="var(--line-strong)" stroke-width="1.25" fill="none" marker-end="url(#ah)">
-                    <path d="M164 56H228" />
-                    <path d="M164 108H228" />
-                    <path d="M164 160H196V120H228" />
+                    <path d="M182 63H216V114H246" />
+                    <path d="M182 131H246" />
+                    <path d="M182 199H216V148H246" />
                   </g>
 
-                  <rect x="238" y="72" width="150" height="76" rx="6"
+                  <rect x="252" y="90" width="170" height="86" rx="6"
                     fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5" />
-                  <text class="dlabel" x="252" y="100">price one</text>
-                  <text class="dlabel" x="252" y="116">forward pass</text>
-                  <text class="dsub" x="252" y="134">analytic + learned</text>
+                  <text class="dlabel" x="266" y="114">price one</text>
+                  <text class="dlabel" x="266" y="130">forward pass</text>
+                  <text class="dsub" x="266" y="146">analytic + learned</text>
+                  <text class="drepo" x="266" y="164">blis-latency-kernel</text>
 
-                  <path d="M388 110H466" stroke="var(--accent)" stroke-width="1.5"
+                  <path d="M422 131H490" stroke="var(--accent)" stroke-width="1.5"
                     fill="none" marker-end="url(#aha)" />
-                  <text class="dedge" x="398" y="102">ms / pass</text>
+                  <text class="dedge" x="432" y="123">ms / pass</text>
 
-                  <rect x="476" y="36" width="190" height="180" rx="6"
+                  <rect x="496" y="34" width="206" height="194" rx="6"
                     fill="var(--panel)" stroke="var(--line-strong)" stroke-width="1.25" />
-                  <text class="dlabel" x="490" y="60">sweep candidates</text>
-                  <text class="dsub" x="490" y="76">within the budget</text>
+                  <text class="dlabel" x="510" y="58">sweep candidates</text>
+                  <text class="dsub" x="510" y="74">within the budget</text>
                   <g fill="var(--paper)" stroke="var(--line)" stroke-width="1">
-                    <rect x="490" y="88" width="162" height="22" rx="3" />
-                    <rect x="490" y="116" width="162" height="22" rx="3" />
-                    <rect x="490" y="144" width="162" height="22" rx="3" />
+                    <rect x="510" y="86" width="178" height="22" rx="3" />
+                    <rect x="510" y="114" width="178" height="22" rx="3" />
+                    <rect x="510" y="142" width="178" height="22" rx="3" />
                   </g>
-                  <text class="dsub" x="500" y="103">tensor-parallel width</text>
-                  <text class="dsub" x="500" y="131">instances, replicas</text>
-                  <text class="dsub" x="500" y="159">max-num-seqs, batched</text>
-                  <text class="dsub" x="490" y="190">each candidate scored</text>
-                  <text class="dsub" x="490" y="204">under your workload</text>
+                  <text class="dsub" x="520" y="101">tensor-parallel width</text>
+                  <text class="dsub" x="520" y="129">instances, replicas</text>
+                  <text class="dsub" x="520" y="157">max-num-seqs, batched</text>
+                  <text class="dsub" x="510" y="186">each candidate scored</text>
+                  <text class="dsub" x="510" y="202">under your workload</text>
 
-                  <path d="M476 216V252H313V158" stroke="var(--accent)" stroke-width="1.5"
+                  <path d="M560 228V262H337V182" stroke="var(--accent)" stroke-width="1.5"
                     fill="none" marker-end="url(#aha)" stroke-dasharray="3 3" />
-                  <text class="dedge" x="330" y="268">one call per candidate</text>
+                  <text class="dedge" x="354" y="278">one call per candidate</text>
 
-                  <path d="M666 126H740" stroke="var(--line-strong)" stroke-width="1.25"
+                  <path d="M702 131H754" stroke="var(--line-strong)" stroke-width="1.25"
                     fill="none" marker-end="url(#ah)" />
-                  <text class="dedge" x="672" y="118">scored</text>
+                  <text class="dedge" x="706" y="123">scored</text>
 
-                  <rect x="750" y="36" width="216" height="180" rx="6"
+                  <rect x="760" y="34" width="206" height="194" rx="6"
                     fill="var(--panel)" stroke="var(--line-strong)" stroke-width="1.25" />
-                  <text class="dlabel" x="764" y="60">drop the dominated</text>
-                  <text class="dsub" x="764" y="76">beaten on every metric</text>
+                  <text class="dlabel" x="774" y="58">drop the dominated</text>
+                  <text class="dsub" x="774" y="74">beaten on every metric</text>
                   <g stroke="var(--line-strong)" stroke-width="1" fill="none">
-                    <path d="M770 190V96H950" />
+                    <path d="M780 190V96H952" />
                   </g>
                   <g fill="var(--line-strong)">
-                    <circle cx="800" cy="178" r="2.5" /><circle cx="828" cy="170" r="2.5" />
-                    <circle cx="856" cy="176" r="2.5" /><circle cx="884" cy="168" r="2.5" />
-                    <circle cx="912" cy="180" r="2.5" /><circle cx="814" cy="162" r="2.5" />
-                    <circle cx="870" cy="160" r="2.5" /><circle cx="926" cy="172" r="2.5" />
+                    <circle cx="806" cy="178" r="2.5" /><circle cx="834" cy="170" r="2.5" />
+                    <circle cx="862" cy="176" r="2.5" /><circle cx="890" cy="168" r="2.5" />
+                    <circle cx="918" cy="180" r="2.5" /><circle cx="820" cy="162" r="2.5" />
+                    <circle cx="876" cy="160" r="2.5" /><circle cx="932" cy="172" r="2.5" />
                   </g>
-                  <path d="M790 112C840 116 890 130 938 152" fill="none"
+                  <path d="M796 112C846 116 896 130 944 152" fill="none"
                     stroke="var(--accent)" stroke-width="1.75" stroke-linecap="round" />
                   <g fill="var(--accent)">
-                    <circle cx="790" cy="112" r="3.5" /><circle cx="840" cy="117" r="3.5" />
-                    <circle cx="888" cy="129" r="3.5" /><circle cx="938" cy="152" r="3.5" />
+                    <circle cx="796" cy="112" r="3.5" /><circle cx="846" cy="117" r="3.5" />
+                    <circle cx="894" cy="129" r="3.5" /><circle cx="944" cy="152" r="3.5" />
                   </g>
-                  <text class="dsub" x="764" y="204">what is left is the frontier</text>
+                  <text class="dsub" x="774" y="204">what is left is the frontier</text>
+
+                  <path d="M14 300H966" stroke="var(--line)" stroke-width="1" fill="none" />
+                  <text class="drepo" x="14" y="320">blis-schemas</text>
+                  <text class="dsub" x="104" y="320">defines the contract every box above reads and writes</text>
                 </svg>
                 </div>
                 <p class="fighint">Scroll the diagram sideways to follow the flow.</p>
                 <figcaption>
                   <b>One cost-model call per candidate, then a dominance filter.</b> Coefficients
                   are fitted once and reused, so no per-model or per-accelerator profiling run is
-                  needed; the frontier is what survives, not a single recommended answer.
+                  needed. Each stage is a separate versioned repository, so any number on this site
+                  can be traced back to the catalog entry, coefficient set and kernel that produced
+                  it.
                 </figcaption>
               </figure>
             </div>
@@ -670,10 +760,18 @@
                 <b>BLIS is an incubating component of llm-d</b>, the Kubernetes-native stack for
                 distributed LLM inference. llm-d deploys and scales serving engines across a
                 cluster; BLIS answers the question that comes first, which is what to deploy. The
-                engine and routing flags a search returns, things like
+                engine flags a search returns, things like
                 <span class="mono">max-num-seqs</span>,
                 <span class="mono">max-num-batched-tokens</span> and tensor-parallel width, are the
                 knobs you then set on a real deployment.
+              </p>
+              <p>
+                Two policies found in simulation have since been validated on hardware and
+                merged into llm-d: a probabilistic admitter and a soft-reflective flow-control
+                ceiling, both cutting tail latency substantially on overloaded workloads. The
+                write-ups below give the numbers and the method. Running llm-d's own router code
+                inside the simulator, so one routing config can be simulated and then deployed
+                unchanged, is a design under discussion rather than something you can do today.
               </p>
               <div class="links">
                 <a href="https://llm-d.ai">llm-d.ai</a>
