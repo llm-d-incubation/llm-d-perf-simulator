@@ -181,11 +181,8 @@
       }
       .leadside { display: flex; align-items: center; gap: 10px; flex: none; }
       .lead:hover .open { background: var(--accent); color: #fff; }
-      .leadnote {
-        font-size: 12.5px;
-        color: var(--muted);
-        margin: 16px 0 12px;
-      }
+      .sectionhead.subhead { margin-top: 30px; }
+      .section.gallery .sectionhead.subhead h2 { font-size: 19px; }
 
       /* ---- gallery cards ---- */
       .cards {
@@ -516,8 +513,7 @@
         <section class="section gallery">
           <div class="wrap">
             <div class="sectionhead">
-              <h2>Explore the results</h2>
-              <span class="note">Published from recorded runs. No server runs at view time.</span>
+              <h2>Start with the simulator</h2>
             </div>
             <a class="lead" href="https://github.com/inference-sim/inference-sim">
               <span class="leadmain">
@@ -534,7 +530,12 @@
                 <span class="pill">Apache-2.0</span>
               </span>
             </a>
-            <p class="leadnote">The two dashboards below publish what it produces.</p>
+            <div class="sectionhead subhead">
+              <h2>What it produces</h2>
+              <span class="note">
+                Static pages built from past simulation runs, not a live service.
+              </span>
+            </div>
             <div class="cards">
               <a class="card" href="https://inference-sim.github.io/blis-config-search/">
                 <div class="plate">
@@ -604,7 +605,7 @@
                   </svg>
                 </div>
                 <div class="cardbody">
-                  <h3>accuracy</h3>
+                  <h3>simulator accuracy</h3>
                   <p>
                     How closely predictions track real measurements, checked against benchmark
                     runs on the same model, hardware and load, broken out per model.
@@ -867,10 +868,13 @@
                 too.
               </p>
               <p>
-                That loop has already returned policies to llm-d: a probabilistic admitter and a
-                soft-reflective flow-control ceiling were both found in simulation, validated on
-                hardware and merged, cutting tail latency substantially on overloaded workloads.
-                The write-ups below give the numbers and the method.
+                That loop has already returned policies to llm-d. Two were found in simulation,
+                validated on hardware and merged: a
+                <a href="https://ai-native-systems-research.github.io/ai-native-systems-research/blog/2026/05/13/from-simulation-to-production-how-an-ai-native-pipeline-discovered-a-better-admission-controller-for-llm-d/">probabilistic
+                admitter</a> and a
+                <a href="https://ai-native-systems-research.github.io/ai-native-systems-research/blog/2026/07/27/from-simulation-to-production-part-ii-soft-reflective-flow-control-for-llm-d/">soft-reflective
+                flow-control ceiling</a>, both cutting tail latency substantially on overloaded
+                workloads. Each has a write-up giving the numbers and the method.
               </p>
               <div class="links">
                 <a href="https://llm-d.ai">llm-d.ai</a>
@@ -889,10 +893,10 @@
       <footer>
         <div class="wrap footinner">
           <p class="footnote">
-            <b>Simulator predictions, not measured results.</b> The reports and dashboards here are
-            generated from recorded runs; no server runs at view time. Check the accuracy dashboard
-            for how far predictions have drifted on your model, and validate against your own
-            hardware before deploying.
+            <b>Simulator predictions, not measured results.</b> The pages here are built from
+            past simulation runs rather than served live. Check the accuracy dashboard for how
+            close predictions came on your model, and validate against your own hardware before
+            deploying.
           </p>
           <div class="footmeta">
             <a class="ghlink" href="https://github.com/inference-sim">
