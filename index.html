@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BLIS · blackbox inference simulator</title>
-    <meta name="description" content="BLIS predicts LLM inference-serving latency and throughput for a model, GPU budget and workload — without standing up the hardware." />
+    <meta name="description" content="BLIS predicts LLM inference-serving latency and throughput for a model, accelerator budget and workload, without standing up the hardware." />
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f6e5c'/%3E%3Cpath d='M7 23l6-7 5 4 7-10' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -47,7 +47,18 @@
 
       /* ---- masthead ---- */
       .masthead { border-bottom: 1.5px solid var(--line-strong); background: var(--panel); }
-      .mastinner { display: flex; align-items: baseline; gap: 14px; padding-top: 18px; padding-bottom: 16px; }
+      .mastinner {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 14px 20px;
+        flex-wrap: wrap;
+        padding-top: 18px;
+        padding-bottom: 16px;
+      }
+      .mastname { display: flex; align-items: baseline; gap: 14px; }
+      .mastlink { font-size: 12.5px; color: var(--muted); }
+      .mastlink a { font-weight: 500; }
       .wordmark {
         font-size: 16px;
         font-weight: 700;
@@ -65,7 +76,7 @@
         font-weight: 600;
         letter-spacing: -0.022em;
         line-height: 1.12;
-        max-width: 30ch;
+        max-width: 38ch;
         text-wrap: pretty;
       }
       .hero .lede {
@@ -199,6 +210,18 @@
         .step:first-child { border-top: 0; }
       }
 
+      /* ---- where this fits ---- */
+      .fits {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-left: 3px solid var(--accent);
+        border-radius: 8px;
+        padding: 20px 22px 21px;
+      }
+      .fits p { margin: 0; font-size: 14px; line-height: 1.6; color: var(--muted); max-width: 86ch; }
+      .fits p b { color: var(--ink); font-weight: 600; }
+      .fits .links { display: flex; flex-wrap: wrap; gap: 10px 20px; margin-top: 15px; font-size: 13px; }
+
       /* ---- footer ---- */
       footer { border-top: 1px solid var(--line); background: var(--panel); margin-top: 8px; }
       .footinner { padding-top: 20px; padding-bottom: 28px; }
@@ -231,19 +254,24 @@
     <div class="page">
       <header class="masthead">
         <div class="wrap mastinner">
-          <span class="wordmark">BLIS</span>
-          <span class="tagline">blackbox inference simulator</span>
+          <span class="mastname">
+            <span class="wordmark">BLIS</span>
+            <span class="tagline">blackbox inference simulator</span>
+          </span>
+          <span class="mastlink">
+            an incubating component of <a href="https://llm-d.ai">llm-d</a>
+          </span>
         </div>
       </header>
 
       <section class="hero">
         <div class="wrap heroinner">
-          <h1>Know how a serving configuration performs before you book the GPUs.</h1>
+          <h1>Know how a serving configuration performs before you book the accelerators.</h1>
           <p class="lede">
             BLIS prices one forward pass from a model graph, a chip and calibrated coefficients,
-            then sweeps that over configurations — tensor parallelism, instance counts, batch
-            limits — to predict fleet throughput, per-user token rate and tail latency for a given
-            model, GPU budget and workload.
+            then sweeps that over configurations: tensor parallelism, instance counts, batch
+            limits. It predicts fleet throughput, per-user token rate and tail latency for a given
+            model, accelerator budget and workload.
           </p>
           <div class="herometa">
             <span class="tag">tok/s/GPU</span>
@@ -260,13 +288,13 @@
           <div class="wrap">
             <div class="sectionhead">
               <h2>Explore the results</h2>
-              <span class="note">Published from recorded runs — no server runs at view time.</span>
+              <span class="note">Published from recorded runs. No server runs at view time.</span>
             </div>
             <div class="cards">
               <a class="card" href="https://inference-sim.github.io/blis-config-search/">
                 <div class="plate">
                   <p class="platelabel">tok/s/GPU vs per-user tok/s</p>
-                  <svg viewBox="0 0 340 150" role="img" aria-label="Scatter plot of GPU efficiency against per-user token rate, with a Pareto frontier along the upper edge and dominated configurations below it.">
+                  <svg viewBox="0 0 340 150" role="img" aria-label="Scatter plot of accelerator efficiency against per-user token rate, with a Pareto frontier along the upper edge and dominated configurations below it.">
                     <g stroke="var(--line-strong)" stroke-width="1" fill="none">
                       <path d="M28 14V126H326" />
                     </g>
@@ -298,7 +326,7 @@
                 <div class="cardbody">
                   <h3>config-search</h3>
                   <p>
-                    Pareto-optimal serving configurations for a model, GPU budget and workload.
+                    Pareto-optimal serving configurations for a model, accelerator budget and workload.
                     Each scenario opens a full report with interactive frontiers and the deployment
                     spec behind every point.
                   </p>
@@ -374,7 +402,7 @@
                 <div class="cardbody">
                   <h3>inference-sim</h3>
                   <p>
-                    The simulator itself — the cost model, the calibration data and the Go
+                    The simulator itself: the cost model, the calibration data and the Go
                     implementation that prices a forward pass from a model graph and a chip.
                   </p>
                   <div class="cardfoot">
@@ -387,7 +415,7 @@
           </div>
         </section>
 
-        <section class="section last">
+        <section class="section">
           <div class="wrap">
             <div class="sectionhead">
               <h2>How a prediction is made</h2>
@@ -405,7 +433,7 @@
                 <span class="ord">Then</span>
                 <h3>Sweep the configurations</h3>
                 <p>
-                  Parallelism, instance counts and batch limits are swept across the GPU budget,
+                  Parallelism, instance counts and batch limits are swept across the accelerator budget,
                   each candidate scored under your workload.
                 </p>
               </div>
@@ -416,6 +444,34 @@
                   Candidates beaten on every metric are dropped; what remains is the frontier you
                   pick a deployment from.
                 </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section last">
+          <div class="wrap">
+            <div class="sectionhead">
+              <h2>Where this fits</h2>
+            </div>
+            <div class="fits">
+              <p>
+                <b>BLIS is an incubating component of llm-d</b>, the Kubernetes-native stack for
+                distributed LLM inference. llm-d deploys and scales serving engines across a
+                cluster; BLIS answers the question that comes first, which is what to deploy. The
+                engine and routing flags a search returns, things like
+                <span class="mono">max-num-seqs</span>,
+                <span class="mono">max-num-batched-tokens</span> and tensor-parallel width, are the
+                knobs you then set on a real deployment.
+              </p>
+              <div class="links">
+                <a href="https://llm-d.ai">llm-d.ai</a>
+                <a class="ghlink" href="https://github.com/llm-d">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.42 7.42 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A7.995 7.995 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/>
+                  </svg>
+                  github.com/llm-d
+                </a>
               </div>
             </div>
           </div>
