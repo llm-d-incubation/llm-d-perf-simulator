@@ -326,8 +326,8 @@
       /* ---- fidelity ---- */
       .fid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr));
-        gap: 18px;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 14px;
         align-items: stretch;
       }
       .fidnote {
@@ -339,48 +339,48 @@
       }
       .fidnote b { color: var(--ink); font-weight: 600; }
       .fidcard {
-        height: 100%;
         display: flex;
         flex-direction: column;
+        height: 100%;
         background: var(--panel);
         border: 1px solid var(--line);
-        border-left: 3px solid var(--accent);
+        border-top: 3px solid var(--accent);
         border-radius: 6px;
-        padding: 14px 16px 15px;
+        padding: 12px 13px 13px;
+        color: var(--ink);
+        transition: box-shadow 0.12s, transform 0.12s, border-color 0.12s;
       }
-      .fidcard h3 {
+      .fidcard:hover {
+        text-decoration: none;
+        transform: translateY(-2px);
+        border-color: var(--accent);
+        box-shadow: 0 2px 10px rgba(23, 28, 26, 0.09);
+      }
+      .fidname {
+        display: block;
         font-family: var(--font-mono);
-        font-size: 13px;
+        font-size: 12px;
         font-weight: 600;
-        margin: 0;
         color: var(--accent-ink);
+        overflow-wrap: anywhere;
       }
-      .fidcard p { margin: 7px 0 0; font-size: 12.5px; line-height: 1.5; color: var(--muted); }
-      .fidcard a { font-size: 12px; font-weight: 500; display: inline-block; margin-top: auto; padding-top: 11px; }
-
-      .fidspan {
-        background: var(--panel);
-        border: 1px solid var(--line);
-        border-left: 3px solid var(--accent);
-        border-radius: 6px;
-        padding: 14px 16px 15px;
-        margin-top: 18px;
-      }
-      .fidspan h3 {
-        font-family: var(--font-mono);
-        font-size: 13px;
+      .fidrole {
+        display: block;
+        font-size: 10px;
         font-weight: 600;
-        margin: 0;
-        color: var(--accent-ink);
+        letter-spacing: 0.06em;
+        text-transform: lowercase;
+        color: var(--accent);
+        margin-top: 3px;
       }
-      .fidspan p {
-        margin: 7px 0 0;
-        font-size: 12.5px;
-        line-height: 1.5;
+      .fidtext {
+        display: block;
+        font-size: 12px;
+        line-height: 1.45;
         color: var(--muted);
-        max-width: 92ch;
+        margin-top: 7px;
       }
-      .fidspan a { font-size: 12px; font-weight: 500; display: inline-block; margin-top: 9px; }
+
 
       /* ---- publications ---- */
       .pubs { display: flex; flex-direction: column; gap: 0; }
@@ -452,6 +452,15 @@
       .linkgloss { color: var(--muted); font-weight: 400; }
       .ghlink svg { vertical-align: middle; flex: none; }
 
+      @media (max-width: 980px) {
+        .fid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      }
+      @media (max-width: 700px) {
+        .fid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      }
+      @media (max-width: 460px) {
+        .fid { grid-template-columns: 1fr; }
+      }
       @media (max-width: 640px) {
         .wrap { padding-left: 16px; padding-right: 16px; }
         .heroinner { padding-top: 36px; padding-bottom: 32px; }
@@ -624,37 +633,31 @@
               reports how far those predictions sat from measured runs, per model.
             </p>
             <div class="fid">
-              <div class="fidcard">
-                <h3>blis-catalog</h3>
-                <p>Models, hardware and workload types, pinned so a scenario means the same
-                  thing on every run.</p>
-                <a href="https://github.com/inference-sim/blis-catalog">view repository</a>
-              </div>
-              <div class="fidcard">
-                <h3>blis-registry</h3>
-                <p>Calibration coefficients, fitted globally and reused rather than profiled
-                  per model.</p>
-                <a href="https://github.com/inference-sim/blis-registry">view repository</a>
-              </div>
-              <div class="fidcard">
-                <h3>blis-latency-kernel</h3>
-                <p>Every step time and memory figure on this site is priced here.</p>
-                <a href="https://github.com/inference-sim/blis-latency-kernel">view repository</a>
-              </div>
-              <div class="fidcard">
-                <h3>blis-vllm</h3>
-                <p>vLLM's scheduling and KV-cache behaviour, pinned to one vLLM release and
-                  differential-tested against vLLM itself.</p>
-                <a href="https://github.com/inference-sim/blis-vllm">view repository</a>
-              </div>
-            </div>
-            <div class="fidspan">
-              <h3>blis-schemas</h3>
-              <p>
-                The contracts between the four above. Nothing passes between them except through
-                a schema defined here.
-              </p>
-              <a href="https://github.com/inference-sim/blis-schemas">view repository</a>
+              <a class="fidcard" href="https://github.com/inference-sim/blis-catalog">
+                <span class="fidname">blis-catalog</span>
+                <span class="fidrole">inputs</span>
+                <span class="fidtext">Models, hardware and workloads, pinned.</span>
+              </a>
+              <a class="fidcard" href="https://github.com/inference-sim/blis-registry">
+                <span class="fidname">blis-registry</span>
+                <span class="fidrole">calibration</span>
+                <span class="fidtext">Coefficients, fitted globally and versioned.</span>
+              </a>
+              <a class="fidcard" href="https://github.com/inference-sim/blis-latency-kernel">
+                <span class="fidname">blis-latency-kernel</span>
+                <span class="fidrole">pricing</span>
+                <span class="fidtext">Every step time and memory figure.</span>
+              </a>
+              <a class="fidcard" href="https://github.com/inference-sim/blis-vllm">
+                <span class="fidname">blis-vllm</span>
+                <span class="fidrole">engine</span>
+                <span class="fidtext">vLLM behaviour, pinned to one release.</span>
+              </a>
+              <a class="fidcard" href="https://github.com/inference-sim/blis-schemas">
+                <span class="fidname">blis-schemas</span>
+                <span class="fidrole">contracts</span>
+                <span class="fidtext">What passes between the four others.</span>
+              </a>
             </div>
           </div>
         </section>
