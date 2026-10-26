@@ -167,6 +167,7 @@
         justify-content: space-between;
         gap: 10px;
         margin-top: auto;
+        min-height: 51px;
         padding-top: 14px;
         border-top: 1px solid var(--line);
       }
@@ -326,9 +327,8 @@
                 <div class="cardbody">
                   <h3>config-search</h3>
                   <p>
-                    Pareto-optimal serving configurations for a model, accelerator budget and workload.
-                    Each scenario opens a full report with interactive frontiers and the deployment
-                    spec behind every point.
+                    Pareto-optimal serving configurations for a model, accelerator budget and
+                    workload. Each opens a full report with the deployment spec behind it.
                   </p>
                   <div class="cardfoot">
                     <span class="open">open reports</span>
@@ -361,9 +361,8 @@
                 <div class="cardbody">
                   <h3>accuracy</h3>
                   <p>
-                    How closely predictions track real measurements, checked against benchmark runs
-                    on the same model, hardware and load. Broken out per model so you can see where
-                    the simulator is trustworthy.
+                    How closely predictions track real measurements, checked against benchmark
+                    runs on the same model, hardware and load, broken out per model.
                   </p>
                   <div class="cardfoot">
                     <span class="open">open dashboard</span>
@@ -403,7 +402,7 @@
                   <h3>inference-sim</h3>
                   <p>
                     The simulator itself: the cost model, the calibration data and the Go
-                    implementation that prices a forward pass from a model graph and a chip.
+                    implementation that prices one forward pass from a model graph and a chip.
                   </p>
                   <div class="cardfoot">
                     <span class="open">view source</span>
