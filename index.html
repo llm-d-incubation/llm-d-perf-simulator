@@ -133,6 +133,60 @@
       .section.gallery .sectionhead h2 { font-size: 21px; }
       .sectionhead .note { font-size: 12.5px; color: var(--muted); }
 
+      /* ---- primary entrypoint ---- */
+      .lead {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 18px 24px;
+        flex-wrap: wrap;
+        background: var(--panel);
+        border: 1px solid var(--line-strong);
+        border-left: 4px solid var(--accent);
+        border-radius: 8px;
+        padding: 17px 20px 18px;
+        color: var(--ink);
+        box-shadow: 0 1px 2px rgba(23, 28, 26, 0.04), 0 3px 10px rgba(23, 28, 26, 0.05);
+        transition: box-shadow 0.12s, transform 0.12s, border-color 0.12s;
+      }
+      .lead:hover {
+        text-decoration: none;
+        transform: translateY(-2px);
+        border-color: var(--accent);
+        box-shadow: 0 2px 4px rgba(23, 28, 26, 0.06), 0 10px 26px rgba(23, 28, 26, 0.12);
+      }
+      .leadmain { display: block; min-width: 0; flex: 1 1 420px; }
+      .leadeyebrow {
+        display: block;
+        font-size: 12.5px;
+        font-weight: 600;
+        color: var(--muted);
+        margin-bottom: 3px;
+      }
+      .leadname {
+        display: block;
+        font-family: var(--font-mono);
+        font-size: 16px;
+        font-weight: 600;
+        letter-spacing: -0.005em;
+        color: var(--accent-ink);
+      }
+      .leadtext {
+        display: block;
+        font-size: 13.5px;
+        line-height: 1.5;
+        color: var(--muted);
+        margin-top: 8px;
+        max-width: 80ch;
+      }
+      .leadside { display: flex; align-items: center; gap: 10px; flex: none; }
+      .lead:hover .open { background: var(--accent); color: #fff; }
+      .leadnote {
+        font-size: 12.5px;
+        color: var(--muted);
+        margin: 16px 0 12px;
+      }
+
       /* ---- gallery cards ---- */
       .cards {
         display: grid;
@@ -456,6 +510,22 @@
               <h2>Explore the results</h2>
               <span class="note">Published from recorded runs. No server runs at view time.</span>
             </div>
+            <a class="lead" href="https://github.com/inference-sim/inference-sim">
+              <span class="leadmain">
+                <span class="leadeyebrow">The simulator</span>
+                <span class="leadname">inference-sim/inference-sim</span>
+                <span class="leadtext">
+                  The discrete-event engine that produces everything below: the cost model, the
+                  embedded llm-d router, and the Go implementation that prices one forward pass
+                  from a model graph and a chip. Start here.
+                </span>
+              </span>
+              <span class="leadside">
+                <span class="open">view source</span>
+                <span class="pill">Apache-2.0</span>
+              </span>
+            </a>
+            <p class="leadnote">The two dashboards below publish what it produces.</p>
             <div class="cards">
               <a class="card" href="https://inference-sim.github.io/blis-config-search/">
                 <div class="plate">
@@ -497,6 +567,7 @@
                   </p>
                   <div class="cardfoot">
                     <span class="open">open reports</span>
+                    <span class="pill">Apache-2.0</span>
                   </div>
                 </div>
               </a>
@@ -531,50 +602,11 @@
                   </p>
                   <div class="cardfoot">
                     <span class="open">open dashboard</span>
-                  </div>
-                </div>
-              </a>
-
-              <a class="card" href="https://github.com/inference-sim/inference-sim">
-                <div class="plate">
-                  <p class="platelabel">model graph + chip &rarr; latency</p>
-                  <svg viewBox="0 0 340 150" role="img" aria-label="Schematic: a model graph and a chip feed a calibrated cost model that prices one forward pass.">
-                    <g stroke="var(--line-strong)" stroke-width="1.5" fill="none">
-                      <path d="M52 40L92 75L52 75M52 110L92 75" />
-                      <path d="M104 75H126" />
-                      <path d="M212 75H234" />
-                    </g>
-                    <g fill="var(--panel)" stroke="var(--accent)" stroke-width="1.75">
-                      <circle cx="52" cy="40" r="8" /><circle cx="52" cy="75" r="8" />
-                      <circle cx="52" cy="110" r="8" />
-                    </g>
-                    <circle cx="92" cy="75" r="8" fill="var(--accent)" />
-                    <rect
-                      x="134" y="45" width="72" height="60" rx="6"
-                      fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.75" />
-                    <g stroke="var(--accent)" stroke-width="1.5" fill="none">
-                      <path d="M134 60h-8M134 75h-8M134 90h-8M206 60h8M206 75h8M206 90h8" />
-                    </g>
-                    <rect x="152" y="64" width="36" height="22" rx="2" fill="var(--accent)" />
-                    <g fill="var(--accent)">
-                      <rect x="242" y="50" width="70" height="13" rx="2" />
-                      <rect x="242" y="69" width="48" height="13" rx="2" />
-                      <rect x="242" y="88" width="28" height="13" rx="2" opacity="0.55" />
-                    </g>
-                  </svg>
-                </div>
-                <div class="cardbody">
-                  <h3>inference-sim/inference-sim</h3>
-                  <p>
-                    The simulator repository: the discrete-event engine, the cost model and the Go
-                    implementation that prices one forward pass from a model graph and a chip.
-                  </p>
-                  <div class="cardfoot">
-                    <span class="open">view source</span>
                     <span class="pill">Apache-2.0</span>
                   </div>
                 </div>
               </a>
+
             </div>
           </div>
         </section>
@@ -586,45 +618,41 @@
               <span class="note">Every figure traces back to a versioned input.</span>
             </div>
             <p class="fidnote">
-              A prediction is only worth as much as what went into it. The pieces below are
-              separate, versioned repositories rather than one bundle, so a number on this site can
-              be traced to the catalog entry it came from, the coefficient set in force at the
-              time, the engine release modelled, and the kernel that priced it. The
+              Each input a prediction depends on lives in its own versioned repository, so any
+              number here can be traced to the exact version that produced it. The
               <a href="https://inference-sim.github.io/accuracy-dashboard/">accuracy dashboard</a>
-              then reports how far those predictions sat from measured runs, per model.
+              reports how far those predictions sat from measured runs, per model.
             </p>
             <div class="fid">
               <div class="fidcard">
                 <h3>blis-catalog</h3>
-                <p>Models, hardware and workload types. Pinned and read-authoritative, so a
-                  scenario means the same thing on every run.</p>
+                <p>Models, hardware and workload types, pinned so a scenario means the same
+                  thing on every run.</p>
                 <a href="https://github.com/inference-sim/blis-catalog">view repository</a>
               </div>
               <div class="fidcard">
                 <h3>blis-registry</h3>
-                <p>Calibration coefficients, versioned. Fitted globally and reused, which is what
-                  removes the per-model profiling run.</p>
+                <p>Calibration coefficients, fitted globally and reused rather than profiled
+                  per model.</p>
                 <a href="https://github.com/inference-sim/blis-registry">view repository</a>
               </div>
               <div class="fidcard">
                 <h3>blis-latency-kernel</h3>
-                <p>Prices one forward pass from a model graph, a chip and the coefficients. Every
-                  step time and memory figure comes from here.</p>
+                <p>Every step time and memory figure on this site is priced here.</p>
                 <a href="https://github.com/inference-sim/blis-latency-kernel">view repository</a>
               </div>
               <div class="fidcard">
                 <h3>blis-vllm</h3>
-                <p>A model of the vLLM engine's scheduling, KV-cache and metrics behaviour, pinned
-                  to one vLLM release and differential-tested against vLLM itself.</p>
+                <p>vLLM's scheduling and KV-cache behaviour, pinned to one vLLM release and
+                  differential-tested against vLLM itself.</p>
                 <a href="https://github.com/inference-sim/blis-vllm">view repository</a>
               </div>
             </div>
             <div class="fidspan">
               <h3>blis-schemas</h3>
               <p>
-                The contracts between the four above: models, hardware, coefficients, deployments
-                and the engine and kernel interfaces. Nothing passes between them except through a
-                schema defined here.
+                The contracts between the four above. Nothing passes between them except through
+                a schema defined here.
               </p>
               <a href="https://github.com/inference-sim/blis-schemas">view repository</a>
             </div>
@@ -827,12 +855,19 @@
                 knobs you then set on a real deployment.
               </p>
               <p>
-                Two policies found in simulation have since been validated on hardware and
-                merged into llm-d: a probabilistic admitter and a soft-reflective flow-control
-                ceiling, both cutting tail latency substantially on overloaded workloads. The
-                write-ups below give the numbers and the method. Running llm-d's own router code
-                inside the simulator, so one routing config can be simulated and then deployed
-                unchanged, is a design under discussion rather than something you can do today.
+                The simulator runs llm-d's own router. Every multi-instance cluster routes
+                through the real Endpoint Picker embedded in-process, reading a deployment's own
+                <span class="mono">EndpointPickerConfig</span>, EPP flags and
+                <span class="mono">InferencePool</span> and
+                <span class="mono">InferenceObjective</span> manifests, so the routing config you
+                simulate is the one you deploy. Admission and flow control come from the router
+                too.
+              </p>
+              <p>
+                That loop has already returned policies to llm-d: a probabilistic admitter and a
+                soft-reflective flow-control ceiling were both found in simulation, validated on
+                hardware and merged, cutting tail latency substantially on overloaded workloads.
+                The write-ups below give the numbers and the method.
               </p>
               <div class="links">
                 <a href="https://llm-d.ai">llm-d.ai</a>
