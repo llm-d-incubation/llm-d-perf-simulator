@@ -56,7 +56,17 @@ Useful things to assert, all of which have regressed at least once:
   rule up; the foot has a `min-height` so no child sets the height.
 - **Caption line counts equal per row**, or the rules above the action links go
   ragged.
-- **No orphan lines.** No line of a caption under ~20% of its measure.
+- **No orphan lines.** No line of a caption under ~20% of its measure. Measure this
+  per line box, with a `Range` over the text nodes: `getClientRects()` on a block
+  element returns one rect for the whole paragraph, so a four-line block measures as
+  one line and the check passes without testing anything.
+- **Prose reaches its column.** The longest line of a multi-line block should come
+  within ~5% of the block's content width, and the block within ~5% of its container.
+  Capping each block separately in `ch` fails this: `ch` scales with font-size, so a
+  76ch cap at 12.5px and an 88ch cap at 14px landed 150px apart and blocks sharing a
+  column ended at ragged widths. One `--prose` token covers every prose block. Text
+  that stops short for want of a breakable word is fine, not a measure problem: the
+  five-up fidelity cards wrap that way in a 177px column.
 - **SVG labels legible.** A 1020-unit-wide `viewBox` scaled to a phone renders 10px
   text at under 3px. The diagram has a `min-width` and scrolls sideways below 976px
   rather than shrinking. Changing the `viewBox` width means changing `min-width`,
@@ -71,9 +81,15 @@ Useful things to assert, all of which have regressed at least once:
 - **Say "accelerator", not "GPU"**, in prose. The exceptions are literal metric
   identifiers (`tok/s/GPU`) and published titles, which keep their original spelling
   because renaming them would misreport the source.
-- `text-wrap: pretty` does not reliably prevent a short last line in Chrome;
-  `text-wrap: balance` does. Rewording to fix an orphan usually just moves it to a
-  different viewport width, so prefer the CSS.
+- **Never `text-wrap: balance` on body prose.** It evens every line to the same
+  length, which means every line stops short of the column: it fixed orphans here by
+  making the hero lede fill 78% of its box and the figure caption 91%, which reads as
+  text that will not use the window. Reviewers reported exactly that. Body prose uses
+  `pretty`, which keeps lines full and only adjusts the last few; measured across 18
+  widths it also beat `auto` on orphans (9 widths against 12). `balance` is still
+  right for a short display heading, where the whole point is an even block.
+- Rewording to fix an orphan usually just moves it to a different viewport width, so
+  prefer the CSS.
 
 ## Design system
 
