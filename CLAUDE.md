@@ -57,9 +57,10 @@ Useful things to assert, all of which have regressed at least once:
 - **Caption line counts equal per row**, or the rules above the action links go
   ragged.
 - **No orphan lines.** No line of a caption under ~20% of its measure.
-- **SVG labels legible.** A 980-unit-wide `viewBox` scaled to a phone renders 10px
-  text at under 3px. The diagram has a `min-width` and scrolls sideways below 940px
-  rather than shrinking.
+- **SVG labels legible.** A 1020-unit-wide `viewBox` scaled to a phone renders 10px
+  text at under 3px. The diagram has a `min-width` and scrolls sideways below 976px
+  rather than shrinking. Changing the `viewBox` width means changing `min-width`,
+  `max-width` and that breakpoint together, or the labels shrink or the hint lies.
 - **SVG text inside its box.** Compare each `<text>` `getBBox()` against the `<rect>`
   it sits in; labels have overrun by a few px unnoticed.
 

@@ -85,6 +85,7 @@
         line-height: 1.5;
         margin: 12px 0 0;
         max-width: 76ch;
+        text-wrap: balance;
       }
       .herometa {
         display: flex;
@@ -179,7 +180,17 @@
         margin-top: 8px;
         max-width: 80ch;
       }
-      .leadside { display: flex; align-items: center; gap: 10px; flex: none; }
+      .leadside { display: flex; align-items: stretch; gap: 10px; flex: none; }
+      /* In the lead block the pair sits with nothing to absorb the 9px height
+         difference a .cardfoot min-height hides, so match them box for box. */
+      .leadside .open,
+      .leadside .pill {
+        display: inline-flex;
+        align-items: center;
+        min-height: 31.5px;
+        padding-top: 0;
+        padding-bottom: 0;
+      }
       .lead:hover .open { background: var(--accent); color: #fff; }
       .sectionhead.subhead { margin-top: 30px; }
       .section.gallery .sectionhead.subhead h2 { font-size: 19px; }
@@ -273,9 +284,9 @@
       .figwrap svg {
         display: block;
         width: 100%;
-        min-width: 880px;
+        min-width: 916px;
         height: auto;
-        max-width: 1000px;
+        max-width: 1040px;
         margin: 0 auto;
       }
       .fighint {
@@ -285,7 +296,7 @@
         margin: 10px 0 0;
         display: none;
       }
-      @media (max-width: 940px) {
+      @media (max-width: 976px) {
         .fighint { display: block; }
         .figwrap { padding-left: 16px; padding-right: 16px; }
         .figwrap figcaption .gloss { max-width: none; }
@@ -495,7 +506,7 @@
             tensor parallelism, instance counts, batch limits.
           </p>
           <div class="herometa">
-            <span class="metricintro">Metrics it predicts</span>
+            <span class="metricintro">Headline metrics</span>
             <span class="tag" title="Output tokens per second per accelerator">tok/s per accelerator</span>
             <span class="tag" title="Output tokens per second a single session sees">per-user tok/s</span>
             <span class="tag" title="Time to first token, 99th percentile">TTFT p99</span>
@@ -504,7 +515,10 @@
           </div>
           <p class="metricgloss">
             TTFT is time to first token, TPOT the time per output token, E2E the end-to-end request
-            latency.
+            latency. A run reports far more than these five: full TTFT, ITL and E2E distributions,
+            per-SLO-class goodput, throughput, completed requests and preemption counts. See
+            <a href="https://github.com/inference-sim/inference-sim/blob/main/docs/guide/results.md">interpreting
+            results</a> for the full set.
           </p>
         </div>
       </section>
@@ -672,7 +686,7 @@
             <div class="figwrap">
               <figure>
                 <div class="figscroll">
-                <svg viewBox="0 0 980 330" role="img"
+                <svg viewBox="0 0 1020 330" role="img"
                   aria-label="Pipeline annotated with the repository behind each stage. Model graph and chip come from blis-catalog, calibration coefficients from blis-registry; blis-latency-kernel prices one forward pass; the sweep calls that kernel once per candidate and scores each under the workload; a filter drops any candidate that another matches or beats on every metric while winning on at least one, leaving the frontier. blis-schemas defines the contracts between every stage.">
                   <defs>
                     <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5"
@@ -687,8 +701,8 @@
 
                   <text class="dstage" x="14" y="20">INPUTS</text>
                   <text class="dstage" x="252" y="20">COST MODEL</text>
-                  <text class="dstage" x="496" y="20">SWEEP</text>
-                  <text class="dstage" x="760" y="20">FILTER</text>
+                  <text class="dstage" x="536" y="20">SWEEP</text>
+                  <text class="dstage" x="800" y="20">FILTER</text>
 
                   <g fill="var(--paper)" stroke="var(--line-strong)" stroke-width="1.25">
                     <rect x="14" y="34" width="168" height="58" rx="5" />
@@ -718,46 +732,43 @@
                   <text class="dsub" x="266" y="146">analytic + learned</text>
                   <text class="drepo" x="266" y="164">blis-latency-kernel</text>
 
-                  <path d="M422 131H484" stroke="var(--accent)" stroke-width="1.5"
+                  <path d="M422 131H524" stroke="var(--accent)" stroke-width="1.5"
                     fill="none" marker-end="url(#aha)" />
-                  <text class="dedge" x="432" y="123">milliseconds per pass</text>
+                  <text class="dedge" x="432" y="108">milliseconds</text>
+                  <text class="dedge" x="432" y="122">per pass</text>
 
-                  <rect x="496" y="34" width="206" height="194" rx="6"
+                  <rect x="536" y="34" width="206" height="194" rx="6"
                     fill="var(--panel)" stroke="var(--line-strong)" stroke-width="1.25" />
-                  <text class="dlabel" x="510" y="58">sweep candidates</text>
-                  <text class="dsub" x="510" y="74">within the budget</text>
+                  <text class="dlabel" x="550" y="58">sweep candidates</text>
+                  <text class="dsub" x="550" y="74">within the accelerator budget</text>
                   <g fill="var(--paper)" stroke="var(--line)" stroke-width="1">
-                    <rect x="510" y="86" width="178" height="22" rx="3" />
-                    <rect x="510" y="114" width="178" height="22" rx="3" />
-                    <rect x="510" y="142" width="178" height="22" rx="3" />
+                    <rect x="550" y="86" width="178" height="22" rx="3" />
+                    <rect x="550" y="114" width="178" height="22" rx="3" />
+                    <rect x="550" y="142" width="178" height="22" rx="3" />
                   </g>
-                  <text class="dsub" x="520" y="101">tensor-parallel width</text>
-                  <text class="dsub" x="520" y="129">instances, replicas</text>
-                  <text class="dsub" x="520" y="157">max-num-seqs, batched</text>
-                  <text class="dsub" x="510" y="186">each candidate scored</text>
-                  <text class="dsub" x="510" y="202">under your workload</text>
+                  <text class="dsub" x="560" y="101">tensor-parallel width</text>
+                  <text class="dsub" x="560" y="129">instances, replicas</text>
+                  <text class="dsub" x="560" y="157">max-num-seqs, batched</text>
+                  <text class="dsub" x="550" y="186">each candidate scored</text>
+                  <text class="dsub" x="550" y="202">under your workload</text>
 
-                  <path d="M560 228V262H337V182" stroke="var(--accent)" stroke-width="1.5"
+                  <path d="M600 228V262H337V182" stroke="var(--accent)" stroke-width="1.5"
                     fill="none" marker-end="url(#aha)" stroke-dasharray="3 3" />
                   <text class="dedge" x="354" y="278">one call per candidate</text>
 
-                  <path d="M702 131H754" stroke="var(--line-strong)" stroke-width="1.25"
+                  <path d="M742 131H794" stroke="var(--line-strong)" stroke-width="1.25"
                     fill="none" marker-end="url(#ah)" />
-                  <text class="dedge" x="706" y="123">scored</text>
+                  <text class="dedge" x="746" y="123">scored</text>
 
-<rect x="760" y="34" width="206" height="194" rx="6"
+<rect x="800" y="34" width="206" height="194" rx="6"
                     fill="var(--panel)" stroke="var(--line-strong)" stroke-width="1.25" />
-                  <text class="dlabel" x="774" y="58">drop the strictly worse</text>
-                  <text class="dsub" x="774" y="80">if another candidate matches</text>
-                  <text class="dsub" x="774" y="96">or beats this one on every</text>
-                  <text class="dsub" x="774" y="112">metric, and wins on at least</text>
-                  <text class="dsub" x="774" y="128">one, this one is dropped.</text>
-                  <text class="dsub" x="774" y="156">Nothing left is strictly</text>
-                  <text class="dsub" x="774" y="172">worse than anything else:</text>
-                  <text class="dsub" x="774" y="188">that set is the frontier,</text>
-                  <text class="dsub" x="774" y="204">plotted in config-search.</text>
+                  <text class="dlabel" x="814" y="58">keep the best</text>
+                  <text class="dlabel" x="814" y="74">trade-offs</text>
+                  <text class="dsub" x="814" y="100">what survives is the</text>
+                  <text class="dsub" x="814" y="116">frontier, plotted in</text>
+                  <text class="dsub" x="814" y="132">config-search</text>
 
-                  <path d="M14 300H966" stroke="var(--line)" stroke-width="1" fill="none" />
+                  <path d="M14 300H1006" stroke="var(--line)" stroke-width="1" fill="none" />
                   <text class="drepo" x="14" y="320">blis-schemas</text>
                   <text class="dsub" x="104" y="320">defines the contract every box above reads and writes</text>
                 </svg>
@@ -766,9 +777,12 @@
                 <figcaption>
                   <span class="claim">One cost-model call per candidate, then drop the strictly worse ones.</span>
                   <span class="gloss">
-                    Coefficients are fitted once and reused, so no per-model or per-accelerator
-                    profiling run is needed. Each stage is a separate versioned repository, so any
-                    number here traces back to the catalog entry, coefficients and kernel behind it.
+                    A candidate is dropped when another matches or beats it on every metric and
+                    wins on at least one, so nothing left is strictly worse than anything else:
+                    that surviving set is the frontier. Coefficients are fitted once and reused, so
+                    no per-model or per-accelerator profiling run is needed. Each stage is a
+                    separate versioned repository, so any number here traces back to the catalog
+                    entry, coefficients and kernel behind it.
                   </span>
                 </figcaption>
               </figure>
