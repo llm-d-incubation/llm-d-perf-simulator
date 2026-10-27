@@ -36,10 +36,8 @@
          91%, which is the ragged look this replaced. `pretty` keeps lines full
          and only works on the last few. */
       .hero .lede,
-      .metricgloss,
       .sectionhead .note,
-      .fidnote,
-      .fidcard .fidtext,
+      .provlead,
       .lead .leadtext,
       .card p,
       .fits p,
@@ -116,19 +114,8 @@
         gap: 10px 10px;
         margin-top: 16px;
       }
-      .metricintro {
-        font-size: 12.5px;
-        font-weight: 600;
-        color: var(--ink);
-        margin-right: 2px;
-      }
-      .metricgloss {
-        font-size: 12.5px;
-        color: var(--muted);
-        line-height: 1.5;
-        margin: 9px 0 0;
-        max-width: var(--prose);
-      }
+      /* Same tag row, reused inside the config-search use-case card. */
+      .usecasemetrics { margin-top: 11px; gap: 7px; }
       .tag {
         font-family: var(--font-mono);
         font-size: 11.5px;
@@ -138,6 +125,12 @@
         border-radius: 3px;
         padding: 3px 9px;
       }
+      /* Tags used as links (the discovered policies) keep the chip look and
+         fill on hover, matching the lead block's view-source button. */
+      a.tag { transition: background 0.12s, color 0.12s; }
+      a.tag:hover { background: var(--accent); color: #fff; text-decoration: none; }
+      /* The trailing "+ many more" is a soft hint, not a hard metric. */
+      .tagmore { background: transparent; color: var(--muted); border-style: dashed; }
 
       /* ---- sections ---- */
       .section { padding-top: 34px; }
@@ -224,6 +217,63 @@
         gap: 20px;
         align-content: start;
       }
+      /* Use-case cards: wider minimum since they carry prose, not a plate. */
+      .usecases { grid-template-columns: repeat(auto-fit, minmax(min(420px, 100%), 1fr)); }
+      /* Accuracy: a single wide banner, chart left and text right, so it reads
+         as intentional rather than one stranded card. Stacks on narrow widths. */
+      .accuracy {
+        display: grid;
+        grid-template-columns: minmax(0, 360px) 1fr;
+        gap: 0;
+        align-items: stretch;
+        background: var(--panel);
+        border: 1px solid var(--line-strong);
+        border-top: 4px solid var(--accent);
+        border-radius: 8px;
+        overflow: hidden;
+        color: var(--ink);
+        box-shadow: 0 1px 2px rgba(23, 28, 26, 0.04), 0 3px 10px rgba(23, 28, 26, 0.05);
+        transition: box-shadow 0.12s, transform 0.12s, border-color 0.12s;
+      }
+      .accuracy:hover {
+        text-decoration: none;
+        transform: translateY(-3px);
+        border-color: var(--accent);
+        box-shadow: 0 2px 4px rgba(23, 28, 26, 0.06), 0 10px 26px rgba(23, 28, 26, 0.12);
+      }
+      .accuracyplate { background: var(--paper); border-right: 1px solid var(--line-strong); padding: 12px 16px 8px; }
+      .accuracyplate svg { display: block; width: 100%; height: auto; }
+      .accuracybody { padding: 16px 20px 18px; display: flex; flex-direction: column; }
+      .accuracybody h3 {
+        font-family: var(--font-mono);
+        font-size: 15.5px;
+        font-weight: 600;
+        margin: 0;
+        color: var(--accent-ink);
+      }
+      .accuracybody p { color: var(--muted); font-size: 13.5px; line-height: 1.5; margin: 9px 0 0; }
+      .accuracybody .open { margin-top: auto; align-self: flex-start; }
+      .accuracy:hover .open { background: var(--accent); color: #fff; }
+      @media (max-width: 620px) {
+        .accuracy { grid-template-columns: 1fr; }
+        .accuracyplate { border-right: 0; border-bottom: 1px solid var(--line-strong); }
+        .accuracybody .open { margin-top: 14px; }
+      }
+      .usecasekicker {
+        display: block;
+        font-family: var(--font-mono);
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 6px;
+      }
+      .usecaseimpact { color: var(--ink); }
+      .usecaseimpact b { font-weight: 600; }
+      .policylist { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 9px; }
+      .policylist li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 9px; }
+      .policywhat { font-size: 12.5px; color: var(--muted); line-height: 1.4; }
       .card {
         background: var(--panel);
         border: 1px solid var(--line-strong);
@@ -345,69 +395,42 @@
         margin-top: 5px;
         max-width: var(--prose);
       }
+      /* Provenance strip: the honesty argument, folded under the diagram as a
+         compact row of repo chips instead of a separate section of cards. */
+      .provenance { margin: 16px auto 0; max-width: 1040px; }
+      .provlead {
+        font-size: 12.5px;
+        color: var(--muted);
+        line-height: 1.55;
+        margin: 0 0 10px;
+        max-width: var(--prose);
+      }
+      .provlist {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .provlist a {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 7px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-left: 3px solid var(--accent);
+        border-radius: 5px;
+        padding: 5px 10px;
+      }
+      .provlist a:hover { border-color: var(--accent); text-decoration: none; }
+      .provname { font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--accent-ink); }
+      .provrole { font-size: 10.5px; color: var(--muted); }
       .dlabel { font-family: var(--font-mono); font-size: 11.5px; font-weight: 600; fill: var(--accent-ink); }
       .dsub { font-family: var(--font-mono); font-size: 10px; fill: var(--muted); }
       .dedge { font-family: var(--font-mono); font-size: 10px; fill: var(--muted); }
       .dstage { font-family: var(--font-sans); font-size: 10px; font-weight: 600; fill: var(--muted); letter-spacing: 0.07em; }
       .drepo { font-family: var(--font-mono); font-size: 9.5px; font-weight: 600; fill: var(--accent); }
-
-      /* ---- fidelity ---- */
-      .fid {
-        display: grid;
-        grid-template-columns: repeat(5, minmax(0, 1fr));
-        gap: 14px;
-        align-items: stretch;
-      }
-      .fidnote {
-        font-size: 14px;
-        line-height: 1.6;
-        color: var(--muted);
-        margin: 0 0 20px;
-        max-width: var(--prose);
-      }
-      .fidnote b { color: var(--ink); font-weight: 600; }
-      .fidcard {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        background: var(--panel);
-        border: 1px solid var(--line);
-        border-top: 3px solid var(--accent);
-        border-radius: 6px;
-        padding: 12px 13px 13px;
-        color: var(--ink);
-        transition: box-shadow 0.12s, transform 0.12s, border-color 0.12s;
-      }
-      .fidcard:hover {
-        text-decoration: none;
-        transform: translateY(-2px);
-        border-color: var(--accent);
-        box-shadow: 0 2px 10px rgba(23, 28, 26, 0.09);
-      }
-      .fidname {
-        display: block;
-        font-family: var(--font-mono);
-        font-size: 12px;
-        font-weight: 600;
-        color: var(--accent-ink);
-        overflow-wrap: anywhere;
-      }
-      .fidrole {
-        display: block;
-        font-size: 10px;
-        font-weight: 600;
-        letter-spacing: 0.06em;
-        text-transform: lowercase;
-        color: var(--accent);
-        margin-top: 3px;
-      }
-      .fidtext {
-        display: block;
-        font-size: 12px;
-        line-height: 1.45;
-        color: var(--muted);
-        margin-top: 7px;
-      }
 
 
       /* ---- publications ---- */
@@ -480,15 +503,6 @@
       .linkgloss { color: var(--muted); font-weight: 400; }
       .ghlink svg { vertical-align: middle; flex: none; }
 
-      @media (max-width: 980px) {
-        .fid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-      }
-      @media (max-width: 700px) {
-        .fid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      }
-      @media (max-width: 460px) {
-        .fid { grid-template-columns: 1fr; }
-      }
       @media (max-width: 640px) {
         .wrap { padding-left: 16px; padding-right: 16px; }
         .heroinner { padding-top: 36px; padding-bottom: 32px; }
@@ -520,25 +534,11 @@
         <div class="wrap heroinner">
           <h1>Know how a serving configuration performs before you book the accelerators.</h1>
           <p class="lede">
-            BLIS is a discrete-event simulator for LLM serving. It models admission, routing,
-            scheduling, batching and KV-cache behaviour on a CPU, pricing each forward pass from a
-            model graph, a chip and calibrated coefficients, then sweeps that over configurations:
-            tensor parallelism, instance counts, batch limits.
-          </p>
-          <div class="herometa">
-            <span class="metricintro">Headline metrics</span>
-            <span class="tag" title="Output tokens per second per accelerator">tok/s per accelerator</span>
-            <span class="tag" title="Output tokens per second a single session sees">per-user tok/s</span>
-            <span class="tag" title="Time to first token, 99th percentile">TTFT p99</span>
-            <span class="tag" title="Time per output token, the gap between output tokens">TPOT</span>
-            <span class="tag" title="End-to-end request latency, 95th percentile">E2E p95</span>
-          </div>
-          <p class="metricgloss">
-            TTFT is time to first token, TPOT the time per output token, E2E the end-to-end request
-            latency. A run reports far more than these five: full TTFT, ITL and E2E distributions,
-            per-SLO-class goodput, throughput, completed requests and preemption counts. See
-            <a href="https://github.com/inference-sim/inference-sim/blob/main/docs/guide/results.md">interpreting
-            results</a> for the full set.
+            BLIS is a digital twin of llm-d: a discrete-event simulator that models admission,
+            routing, scheduling, batching and KV-cache behaviour on a CPU, pricing a serving
+            configuration from a model graph, a chip and calibrated coefficients, without touching
+            an accelerator. Evaluating a configuration is cheap, so thousands can be swept to find
+            the best.
           </p>
         </div>
       </section>
@@ -564,14 +564,16 @@
                 <span class="pill">Apache-2.0</span>
               </span>
             </a>
-            <div class="sectionhead subhead">
-              <h2>What it produces</h2>
-              <span class="note">
-                Static pages built from past simulation runs, not a live service.
-              </span>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="wrap">
+            <div class="sectionhead">
+              <h2>What BLIS is for</h2>
             </div>
-            <div class="cards">
-              <a class="card" href="https://inference-sim.github.io/blis-config-search/">
+            <div class="cards usecases">
+              <a class="card usecase" href="https://inference-sim.github.io/blis-config-search/">
                 <div class="plate">
                   <p class="platelabel">tok/s/GPU vs per-user tok/s</p>
                   <svg viewBox="0 0 340 150" role="img" aria-label="Scatter plot of accelerator efficiency against per-user token rate, with a Pareto frontier along the upper edge and dominated configurations below it.">
@@ -604,53 +606,83 @@
                   </svg>
                 </div>
                 <div class="cardbody">
-                  <h3>config-search</h3>
+                  <span class="usecasekicker">Use case</span>
+                  <h3>Config search</h3>
                   <p>
-                    Pareto-optimal serving configurations for a model, accelerator budget and
-                    workload. Each opens a full report with the deployment spec behind it.
+                    Sweep serving configurations, tensor parallelism, instance counts and batch
+                    limits, pricing each one with BLIS, and keep only the Pareto-optimal few: the
+                    configurations no other beats on both throughput per accelerator and per-user
+                    speed. The reports are published in the config-search dashboard.
                   </p>
-                  <div class="cardfoot">
-                    <span class="open">open reports</span>
-                    <span class="pill">Apache-2.0</span>
+                  <p class="usecaseimpact"><b>Trade-offs weighed, among the many metrics BLIS returns:</b></p>
+                  <div class="herometa usecasemetrics">
+                    <span class="tag" title="Output tokens per second per accelerator">tok/s per accelerator</span>
+                    <span class="tag" title="Output tokens per second a single session sees">per-user tok/s</span>
+                    <span class="tag" title="Time to first token, 99th percentile">TTFT p99</span>
+                    <span class="tag" title="Time per output token, the gap between output tokens">TPOT</span>
+                    <span class="tag" title="End-to-end request latency, 95th percentile">E2E p95</span>
+                    <span class="tag tagmore" title="plus full latency distributions, per-SLO-class goodput, throughput, completed requests, preemption counts and more">+ many more</span>
+                  </div>
+                  <div class="cardfoot flush">
+                    <span class="open">open config-search dashboard</span>
                   </div>
                 </div>
               </a>
-
-              <a class="card" href="https://inference-sim.github.io/accuracy-dashboard/">
+              <div class="card usecase">
                 <div class="plate">
-                  <p class="platelabel">predicted vs measured TPOT</p>
-                  <svg viewBox="0 0 340 150" role="img" aria-label="Scatter plot of predicted against measured time per output token, clustered along the parity line with two over-predictions marked.">
-                    <g stroke="var(--line-strong)" stroke-width="1" fill="none">
-                      <path d="M28 14V126H326" />
-                      <path d="M28 126L326 18" stroke-dasharray="4 4" />
+                  <p class="platelabel">simulate &rarr; validate &rarr; merge</p>
+                  <svg viewBox="0 0 340 150" role="img" aria-label="Three stages, simulate then validate on hardware then merge into llm-d, connected left to right, with a feedback arrow from merge back to simulate.">
+                    <defs>
+                      <marker id="pa" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                        <path d="M0 0L10 5L0 10z" fill="var(--accent)" />
+                      </marker>
+                    </defs>
+                    <g fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5">
+                      <rect x="16" y="52" width="86" height="46" rx="6" />
+                      <rect x="127" y="52" width="86" height="46" rx="6" />
+                      <rect x="238" y="52" width="86" height="46" rx="6" />
                     </g>
-                    <g fill="var(--accent)">
-                      <circle cx="58" cy="112" r="3" /><circle cx="84" cy="105" r="3" />
-                      <circle cx="104" cy="94" r="3" /><circle cx="122" cy="90" r="3" />
-                      <circle cx="134" cy="88" r="3" /><circle cx="158" cy="80" r="3" />
-                      <circle cx="176" cy="70" r="3" /><circle cx="194" cy="66" r="3" />
-                      <circle cx="212" cy="56" r="3" /><circle cx="230" cy="52" r="3" />
-                      <circle cx="252" cy="44" r="3" /><circle cx="266" cy="40" r="3" />
-                      <circle cx="284" cy="32" r="3" /><circle cx="306" cy="26" r="3" />
+                    <g fill="var(--accent-ink)" font-family="var(--font-mono)" font-size="11" font-weight="600" text-anchor="middle">
+                      <text x="59" y="79">simulate</text>
+                      <text x="170" y="79">validate</text>
+                      <text x="281" y="79">merge</text>
                     </g>
-                    <g fill="var(--over-ink)">
-                      <circle cx="146" cy="62" r="3" /><circle cx="224" cy="78" r="3" />
+                    <g stroke="var(--accent)" stroke-width="1.5" fill="none" marker-end="url(#pa)">
+                      <path d="M102 75H125" />
+                      <path d="M213 75H236" />
                     </g>
+                    <path d="M281 98V124H59V100" stroke="var(--accent)" stroke-width="1.25"
+                      stroke-dasharray="3 3" fill="none" marker-end="url(#pa)" />
                   </svg>
                 </div>
                 <div class="cardbody">
-                  <h3>simulator accuracy</h3>
+                  <span class="usecasekicker">Use case</span>
+                  <h3>Policy discovery</h3>
                   <p>
-                    How closely predictions track real measurements, checked against benchmark
-                    runs on the same model, hardware and load, broken out per model.
+                    Discover serving policies in simulation, admission, routing and flow control,
+                    then validate the promising ones on hardware and merge them upstream. The
+                    simulator runs llm-d's own router, so a policy that works in simulation is the
+                    one you deploy.
                   </p>
-                  <div class="cardfoot">
-                    <span class="open">open dashboard</span>
-                    <span class="pill">Apache-2.0</span>
-                  </div>
+                  <p class="usecaseimpact">
+                    <b>In production:</b> three policies discovered with BLIS and merged into llm-d.
+                  </p>
+                  <ul class="policylist">
+                    <li>
+                      <a class="tag" href="https://ai-native-systems-research.github.io/ai-native-systems-research/blog/2026/05/13/from-simulation-to-production-how-an-ai-native-pipeline-discovered-a-better-admission-controller-for-llm-d/">probabilistic admitter</a>
+                      <span class="policywhat">sheds low-priority requests under load so critical ones stay fast</span>
+                    </li>
+                    <li>
+                      <a class="tag" href="https://ai-native-systems-research.github.io/ai-native-systems-research/blog/2026/07/27/from-simulation-to-production-part-ii-soft-reflective-flow-control-for-llm-d/">soft-reflective ceiling</a>
+                      <span class="policywhat">throttles smoothly near capacity to hold down tail latency</span>
+                    </li>
+                    <li>
+                      <a class="tag" href="https://github.com/llm-d/llm-d-router/pull/3392">lora-residency scorer</a>
+                      <span class="policywhat">routes LoRA requests to pods already holding the adapter</span>
+                    </li>
+                  </ul>
                 </div>
-              </a>
-
+              </div>
             </div>
           </div>
         </section>
@@ -658,49 +690,47 @@
         <section class="section">
           <div class="wrap">
             <div class="sectionhead">
-              <h2>How the numbers stay honest</h2>
-              <span class="note">Every figure traces back to a versioned input.</span>
+              <h2>How accurate is BLIS?</h2>
             </div>
-            <p class="fidnote">
-              Each input a prediction depends on lives in its own versioned repository, so any
-              number here can be traced to the exact version that produced it. The
-              <a href="https://inference-sim.github.io/accuracy-dashboard/">accuracy dashboard</a>
-              reports how far those predictions sat from measured runs, per model.
-            </p>
-            <div class="fid">
-              <a class="fidcard" href="https://github.com/inference-sim/blis-catalog">
-                <span class="fidname">blis-catalog</span>
-                <span class="fidrole">inputs</span>
-                <span class="fidtext">Models, hardware and workloads, pinned.</span>
-              </a>
-              <a class="fidcard" href="https://github.com/inference-sim/blis-registry">
-                <span class="fidname">blis-registry</span>
-                <span class="fidrole">calibration</span>
-                <span class="fidtext">Coefficients, fitted globally and versioned.</span>
-              </a>
-              <a class="fidcard" href="https://github.com/inference-sim/blis-latency-kernel">
-                <span class="fidname">blis-latency-kernel</span>
-                <span class="fidrole">pricing</span>
-                <span class="fidtext">Every step time and memory figure.</span>
-              </a>
-              <a class="fidcard" href="https://github.com/inference-sim/blis-vllm">
-                <span class="fidname">blis-vllm</span>
-                <span class="fidrole">engine</span>
-                <span class="fidtext">vLLM behaviour, pinned to one release.</span>
-              </a>
-              <a class="fidcard" href="https://github.com/inference-sim/blis-schemas">
-                <span class="fidname">blis-schemas</span>
-                <span class="fidrole">contracts</span>
-                <span class="fidtext">What passes between the four others.</span>
-              </a>
-            </div>
+            <a class="accuracy" href="https://inference-sim.github.io/accuracy-dashboard/">
+              <div class="accuracyplate">
+                <p class="platelabel">predicted vs measured TPOT</p>
+                <svg viewBox="0 0 340 150" role="img" aria-label="Scatter plot of predicted against measured time per output token, clustered along the parity line with two over-predictions marked.">
+                  <g stroke="var(--line-strong)" stroke-width="1" fill="none">
+                    <path d="M28 14V126H326" />
+                    <path d="M28 126L326 18" stroke-dasharray="4 4" />
+                  </g>
+                  <g fill="var(--accent)">
+                    <circle cx="58" cy="112" r="3" /><circle cx="84" cy="105" r="3" />
+                    <circle cx="104" cy="94" r="3" /><circle cx="122" cy="90" r="3" />
+                    <circle cx="134" cy="88" r="3" /><circle cx="158" cy="80" r="3" />
+                    <circle cx="176" cy="70" r="3" /><circle cx="194" cy="66" r="3" />
+                    <circle cx="212" cy="56" r="3" /><circle cx="230" cy="52" r="3" />
+                    <circle cx="252" cy="44" r="3" /><circle cx="266" cy="40" r="3" />
+                    <circle cx="284" cy="32" r="3" /><circle cx="306" cy="26" r="3" />
+                  </g>
+                  <g fill="var(--over-ink)">
+                    <circle cx="146" cy="62" r="3" /><circle cx="224" cy="78" r="3" />
+                  </g>
+                </svg>
+              </div>
+              <div class="accuracybody">
+                <h3>Simulator Accuracy</h3>
+                <p>
+                  How closely predictions track real measurements, broken out per model. BLIS is
+                  evaluated daily against publicly available real-GPU data, such as SemiAnalysis'
+                  InferenceX, so accuracy is tracked continuously rather than claimed once.
+                </p>
+                <span class="open">open accuracy dashboard</span>
+              </div>
+            </a>
           </div>
         </section>
 
         <section class="section">
           <div class="wrap">
             <div class="sectionhead">
-              <h2>How a prediction is made</h2>
+              <h2>How BLIS simulates serving performance</h2>
               <span class="note">No accelerator is touched at any stage.</span>
             </div>
             <div class="figwrap">
@@ -754,8 +784,6 @@
 
                   <path d="M422 131H524" stroke="var(--accent)" stroke-width="1.5"
                     fill="none" marker-end="url(#aha)" />
-                  <text class="dedge" x="432" y="108">milliseconds</text>
-                  <text class="dedge" x="432" y="122">per pass</text>
 
                   <rect x="536" y="34" width="206" height="194" rx="6"
                     fill="var(--panel)" stroke="var(--line-strong)" stroke-width="1.25" />
@@ -795,17 +823,27 @@
                 </div>
                 <p class="fighint">Scroll the diagram sideways to follow the flow.</p>
                 <figcaption>
-                  <span class="claim">One cost-model call per candidate, then drop the strictly worse ones.</span>
+                  <span class="claim">One cost-model call per candidate, then keep only the best trade-offs.</span>
                   <span class="gloss">
-                    A candidate is dropped when another matches or beats it on every metric and
-                    wins on at least one, so nothing left is strictly worse than anything else:
-                    that surviving set is the frontier. Coefficients are fitted once and reused, so
-                    no per-model or per-accelerator profiling run is needed. Each stage is a
-                    separate versioned repository, so any number here traces back to the catalog
-                    entry, coefficients and kernel behind it.
+                    The filter drops any configuration that another one beats outright, leaving the
+                    frontier. Calibration is fitted once and reused, so no profiling run is needed
+                    per model or accelerator.
                   </span>
                 </figcaption>
               </figure>
+              <div class="provenance">
+                <p class="provlead">
+                  Each stage is its own versioned repository, so every number traces back to the
+                  exact input behind it.
+                </p>
+                <ul class="provlist">
+                  <li><a href="https://github.com/inference-sim/blis-catalog"><span class="provname">blis-catalog</span> <span class="provrole">inputs</span></a></li>
+                  <li><a href="https://github.com/inference-sim/blis-registry"><span class="provname">blis-registry</span> <span class="provrole">calibration</span></a></li>
+                  <li><a href="https://github.com/inference-sim/blis-latency-kernel"><span class="provname">blis-latency-kernel</span> <span class="provrole">pricing</span></a></li>
+                  <li><a href="https://github.com/inference-sim/blis-vllm"><span class="provname">blis-vllm</span> <span class="provrole">engine</span></a></li>
+                  <li><a href="https://github.com/inference-sim/blis-schemas"><span class="provname">blis-schemas</span> <span class="provrole">contracts</span></a></li>
+                </ul>
+              </div>
             </div>
           </div>
         </section>
@@ -880,35 +918,27 @@
         <section class="section last">
           <div class="wrap">
             <div class="sectionhead">
-              <h2>Where this fits</h2>
+              <h2>How it fits</h2>
             </div>
             <div class="fits">
               <p>
-                <b>BLIS is an incubating component of llm-d</b>, the Kubernetes-native stack for
-                distributed LLM inference. llm-d deploys and scales serving engines across a
-                cluster; BLIS answers the question that comes first, which is what to deploy. The
-                engine flags a search returns, things like
+                <b>BLIS is a digital twin of llm-d</b>, the Kubernetes-native stack for distributed
+                LLM inference. It is an incubating llm-d component: llm-d deploys and scales serving
+                engines across a cluster, and BLIS answers the question that comes first, which is
+                what to deploy. The flags a search returns,
                 <span class="mono">max-num-seqs</span>,
                 <span class="mono">max-num-batched-tokens</span> and tensor-parallel width, are the
                 knobs you then set on a real deployment.
               </p>
               <p>
-                The simulator runs llm-d's own router. Every multi-instance cluster routes
-                through the real Endpoint Picker embedded in-process, reading a deployment's own
+                It is a twin because it runs llm-d's own code, not a model of it. Every
+                multi-instance cluster routes through the real Endpoint Picker embedded in-process,
+                reading a deployment's own
                 <span class="mono">EndpointPickerConfig</span>, EPP flags and
                 <span class="mono">InferencePool</span> and
                 <span class="mono">InferenceObjective</span> manifests, so the routing config you
                 simulate is the one you deploy. Admission and flow control come from the router
                 too.
-              </p>
-              <p>
-                That loop has already returned policies to llm-d. Two were found in simulation,
-                validated on hardware and merged: a
-                <a href="https://ai-native-systems-research.github.io/ai-native-systems-research/blog/2026/05/13/from-simulation-to-production-how-an-ai-native-pipeline-discovered-a-better-admission-controller-for-llm-d/">probabilistic
-                admitter</a> and a
-                <a href="https://ai-native-systems-research.github.io/ai-native-systems-research/blog/2026/07/27/from-simulation-to-production-part-ii-soft-reflective-flow-control-for-llm-d/">soft-reflective
-                flow-control ceiling</a>, both cutting tail latency substantially on overloaded
-                workloads. Each has a write-up giving the numbers and the method.
               </p>
               <div class="links">
                 <a href="https://llm-d.ai">llm-d.ai</a>
