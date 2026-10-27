@@ -737,7 +737,7 @@
               <figure>
                 <div class="figscroll">
                 <svg viewBox="0 0 1020 330" role="img"
-                  aria-label="Pipeline annotated with the repository behind each stage. Model graph and chip come from blis-catalog, calibration coefficients from blis-registry; blis-latency-kernel prices one forward pass; the sweep calls that kernel once per candidate and scores each under the workload; a filter drops any candidate that another matches or beats on every metric while winning on at least one, leaving the frontier. blis-schemas defines the contracts between every stage.">
+                  aria-label="Pipeline annotated with the repository behind each stage. Model graph and chip come from blis-catalog, calibration coefficients from blis-registry; blis-latency-kernel prices one forward pass, which feeds a discrete-event simulation of routing, scheduling and KV cache that returns serving metrics; the sweep runs that simulation once per candidate and scores each under the workload; a filter drops any candidate that another matches or beats on every metric while winning on at least one, leaving the frontier. blis-schemas defines the contracts between every stage.">
                   <defs>
                     <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5"
                       markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -750,7 +750,7 @@
                   </defs>
 
                   <text class="dstage" x="14" y="20">INPUTS</text>
-                  <text class="dstage" x="252" y="20">COST MODEL</text>
+                  <text class="dstage" x="252" y="20">SIMULATE</text>
                   <text class="dstage" x="536" y="20">SWEEP</text>
                   <text class="dstage" x="800" y="20">FILTER</text>
 
@@ -769,21 +769,33 @@
                   <text class="dsub" x="28" y="204">fitted once, versioned</text>
                   <text class="drepo" x="28" y="220">blis-registry</text>
 
-                  <g stroke="var(--line-strong)" stroke-width="1.25" fill="none" marker-end="url(#ah)">
-                    <path d="M182 63H216V114H246" />
-                    <path d="M182 131H246" />
-                    <path d="M182 199H216V148H246" />
+                  <g stroke="var(--line-strong)" stroke-width="1.25" fill="none">
+                    <path d="M182 63 H224" />
+                    <path d="M182 131 H224" />
+                    <path d="M182 199 H224" />
+                    <path d="M224 63 V199" />
+                    <path d="M224 77 H246" marker-end="url(#ah)" />
                   </g>
 
-                  <rect x="252" y="90" width="170" height="86" rx="6"
+                  <rect x="252" y="46" width="170" height="64" rx="6"
                     fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5" />
-                  <text class="dlabel" x="266" y="114">price one</text>
-                  <text class="dlabel" x="266" y="130">forward pass</text>
-                  <text class="dsub" x="266" y="146">analytic + learned</text>
-                  <text class="drepo" x="266" y="164">blis-latency-kernel</text>
+                  <text class="dlabel" x="266" y="69">price one</text>
+                  <text class="dlabel" x="266" y="85">forward pass</text>
+                  <text class="drepo" x="266" y="101">blis-latency-kernel</text>
 
-                  <path d="M422 131H524" stroke="var(--accent)" stroke-width="1.5"
+                  <path d="M337 110 V134" stroke="var(--accent)" stroke-width="1.5"
                     fill="none" marker-end="url(#aha)" />
+                  <text class="dedge" x="345" y="126">per-pass cost</text>
+
+                  <rect x="252" y="138" width="170" height="74" rx="6"
+                    fill="var(--panel)" stroke="var(--accent)" stroke-width="1.25" />
+                  <text class="dlabel" x="266" y="166">discrete-event sim</text>
+                  <text class="dsub" x="266" y="186">routing, scheduling,</text>
+                  <text class="dsub" x="266" y="200">KV cache</text>
+
+                  <path d="M422 175 H524" stroke="var(--accent)" stroke-width="1.5"
+                    fill="none" marker-end="url(#aha)" />
+                  <text class="dedge" x="452" y="168">metrics</text>
 
                   <rect x="536" y="34" width="206" height="194" rx="6"
                     fill="var(--panel)" stroke="var(--line-strong)" stroke-width="1.25" />
@@ -800,9 +812,9 @@
                   <text class="dsub" x="550" y="186">each candidate scored</text>
                   <text class="dsub" x="550" y="202">under your workload</text>
 
-                  <path d="M600 228V262H337V182" stroke="var(--accent)" stroke-width="1.5"
+                  <path d="M600 228V276H337V222" stroke="var(--accent)" stroke-width="1.5"
                     fill="none" marker-end="url(#aha)" stroke-dasharray="3 3" />
-                  <text class="dedge" x="354" y="278">one call per candidate</text>
+                  <text class="dedge" x="354" y="292">one run per candidate</text>
 
                   <path d="M742 131H794" stroke="var(--line-strong)" stroke-width="1.25"
                     fill="none" marker-end="url(#ah)" />
@@ -823,7 +835,7 @@
                 </div>
                 <p class="fighint">Scroll the diagram sideways to follow the flow.</p>
                 <figcaption>
-                  <span class="claim">One cost-model call per candidate, then keep only the best trade-offs.</span>
+                  <span class="claim">One simulation run per candidate, then keep only the best trade-offs.</span>
                   <span class="gloss">
                     The filter drops any configuration that another one beats outright, leaving the
                     frontier. Calibration is fitted once and reused, so no profiling run is needed
