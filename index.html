@@ -591,7 +591,7 @@
               <h2>What BLIS is for</h2>
             </div>
             <div class="cards usecases">
-              <a class="card usecase" href="https://inference-sim.github.io/blis-config-search/">
+              <a class="card" href="https://inference-sim.github.io/blis-config-search/">
                 <div class="plate">
                   <p class="platelabel">tok/s/GPU vs per-user tok/s</p>
                   <svg viewBox="0 0 340 150" role="img" aria-label="Scatter plot of accelerator efficiency against per-user token rate, with a Pareto frontier along the upper edge and dominated configurations below it.">
@@ -647,7 +647,7 @@
                   </div>
                 </div>
               </a>
-              <div class="card usecase">
+              <div class="card">
                 <div class="plate">
                   <p class="platelabel">simulate &rarr; validate &rarr; merge</p>
                   <svg viewBox="0 0 340 150" role="img" aria-label="Three stages, simulate then validate on hardware then merge into llm-d, connected left to right, with a feedback arrow from merge back to simulate.">
@@ -688,15 +688,15 @@
                   </p>
                   <ul class="policylist">
                     <li>
-                      <a class="tag" href="https://ai-native-systems-research.github.io/ai-native-systems-research/blog/2026/05/13/from-simulation-to-production-how-an-ai-native-pipeline-discovered-a-better-admission-controller-for-llm-d/">probabilistic admitter</a>
+                      <a class="tag" href="https://github.com/llm-d/llm-d-router/tree/main/pkg/epp/framework/plugins/requestcontrol/admitter/probabilisticadmitter">probabilistic admitter</a>
                       <span class="policywhat">sheds low-priority requests under load so critical ones stay fast</span>
                     </li>
                     <li>
-                      <a class="tag" href="https://ai-native-systems-research.github.io/ai-native-systems-research/blog/2026/07/27/from-simulation-to-production-part-ii-soft-reflective-flow-control-for-llm-d/">soft-reflective ceiling</a>
+                      <a class="tag" href="https://github.com/llm-d/llm-d-router/tree/main/pkg/epp/framework/plugins/flowcontrol/usagelimits/softreflectiveceiling">soft-reflective ceiling</a>
                       <span class="policywhat">throttles smoothly near capacity to hold down tail latency</span>
                     </li>
                     <li>
-                      <a class="tag" href="https://github.com/llm-d/llm-d-router/pull/3392">lora-residency scorer</a>
+                      <a class="tag" href="https://github.com/llm-d/llm-d-router/tree/main/pkg/epp/framework/plugins/scheduling/scorer/loraresidency">lora-residency scorer</a>
                       <span class="policywhat">routes LoRA requests to pods already holding the adapter</span>
                     </li>
                   </ul>
@@ -737,8 +737,9 @@
                 <h3>Simulator Accuracy</h3>
                 <p>
                   How closely predictions track real measurements, broken out per model. BLIS is
-                  evaluated daily against publicly available real-GPU data, such as SemiAnalysis'
-                  InferenceX, so accuracy is tracked continuously rather than claimed once.
+                  evaluated nightly against publicly available real-accelerator data, such as
+                  SemiAnalysis' InferenceX, so accuracy is tracked continuously rather than claimed
+                  once.
                 </p>
                 <div class="accuracyfoot">
                   <span class="open">open accuracy dashboard</span>
