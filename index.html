@@ -1,0 +1,928 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BLIS · blackbox inference simulator</title>
+    <meta name="description" content="BLIS predicts LLM inference-serving latency and throughput for a model, accelerator budget and workload, without standing up the hardware." />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f6e5c'/%3E%3Cpath d='M7 23l6-7 5 4 7-10' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" />
+    <style>
+      :root {
+        --paper: #f7f9f6;
+        --panel: #fff;
+        --ink: #171c1a;
+        --muted: #5b6660;
+        --line: #e3e7df;
+        --line-strong: #c3ccbf;
+        --accent: #1f6e5c;
+        --accent-ink: #0f4438;
+        --accent-soft: #d9e9e1;
+        --over-ink: #a3301f;
+        --font-sans: "IBM Plex Sans", -apple-system, "Segoe UI", system-ui, sans-serif;
+        --font-mono: "IBM Plex Mono", "SFMono-Regular", ui-monospace, Menlo, monospace;
+        --measure: 1160px;
+      }
+      html, body { color-scheme: light; }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: var(--font-sans);
+        font-size: 15px;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+      }
+      a { color: var(--accent); text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+      .mono { font-family: var(--font-mono); }
+      .wrap { max-width: var(--measure); margin: 0 auto; width: 100%; padding: 0 40px; }
+
+      .page { min-height: 100vh; display: flex; flex-direction: column; }
+
+      /* ---- masthead ---- */
+      .masthead { border-bottom: 1.5px solid var(--line-strong); background: var(--panel); }
+      .mastinner {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 14px 20px;
+        flex-wrap: wrap;
+        padding-top: 18px;
+        padding-bottom: 16px;
+      }
+      .mastname { display: flex; align-items: baseline; gap: 14px; }
+      .mastlink { font-size: 12.5px; color: var(--muted); }
+      .mastlink a { font-weight: 500; }
+      .wordmark {
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        color: var(--accent);
+      }
+      .mastinner .tagline { font-size: 13px; color: var(--muted); }
+
+      /* ---- hero ---- */
+      .hero { background: var(--panel); border-bottom: 1px solid var(--line); }
+      .heroinner { padding-top: 32px; padding-bottom: 26px; }
+      .hero h1 {
+        margin: 0;
+        font-size: clamp(28px, 3.6vw, 40px);
+        font-weight: 600;
+        letter-spacing: -0.022em;
+        line-height: 1.12;
+        max-width: 38ch;
+        text-wrap: pretty;
+      }
+      .hero .lede {
+        color: var(--muted);
+        font-size: 15.5px;
+        line-height: 1.5;
+        margin: 12px 0 0;
+        max-width: 76ch;
+        text-wrap: balance;
+      }
+      .herometa {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px 10px;
+        margin-top: 16px;
+      }
+      .metricintro {
+        font-size: 12.5px;
+        font-weight: 600;
+        color: var(--ink);
+        margin-right: 2px;
+      }
+      .metricgloss {
+        font-size: 12.5px;
+        color: var(--muted);
+        line-height: 1.5;
+        margin: 9px 0 0;
+        max-width: 76ch;
+      }
+      .tag {
+        font-family: var(--font-mono);
+        font-size: 11.5px;
+        color: var(--accent-ink);
+        background: var(--accent-soft);
+        border: 1px solid var(--accent);
+        border-radius: 3px;
+        padding: 3px 9px;
+      }
+
+      /* ---- sections ---- */
+      .section { padding-top: 34px; }
+      .section.last { padding-bottom: 56px; }
+      .sectionhead {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 14px;
+        flex-wrap: wrap;
+        border-bottom: 1px solid var(--line-strong);
+        padding-bottom: 9px;
+        margin-bottom: 18px;
+      }
+      .sectionhead h2 { margin: 0; font-size: 19px; font-weight: 600; letter-spacing: -0.01em; }
+      .section.gallery .sectionhead h2 { font-size: 21px; }
+      .sectionhead .note { font-size: 12.5px; color: var(--muted); }
+
+      /* ---- primary entrypoint ---- */
+      .lead {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 18px 24px;
+        flex-wrap: wrap;
+        background: var(--panel);
+        border: 1px solid var(--line-strong);
+        border-left: 4px solid var(--accent);
+        border-radius: 8px;
+        padding: 17px 20px 18px;
+        color: var(--ink);
+        box-shadow: 0 1px 2px rgba(23, 28, 26, 0.04), 0 3px 10px rgba(23, 28, 26, 0.05);
+        transition: box-shadow 0.12s, transform 0.12s, border-color 0.12s;
+      }
+      .lead:hover {
+        text-decoration: none;
+        transform: translateY(-2px);
+        border-color: var(--accent);
+        box-shadow: 0 2px 4px rgba(23, 28, 26, 0.06), 0 10px 26px rgba(23, 28, 26, 0.12);
+      }
+      .leadmain { display: block; min-width: 0; flex: 1 1 420px; }
+      .leadeyebrow {
+        display: block;
+        font-size: 12.5px;
+        font-weight: 600;
+        color: var(--muted);
+        margin-bottom: 3px;
+      }
+      .leadname {
+        display: block;
+        font-family: var(--font-mono);
+        font-size: 16px;
+        font-weight: 600;
+        letter-spacing: -0.005em;
+        color: var(--accent-ink);
+      }
+      .leadtext {
+        display: block;
+        font-size: 13.5px;
+        line-height: 1.5;
+        color: var(--muted);
+        margin-top: 8px;
+        max-width: 80ch;
+      }
+      .leadside { display: flex; align-items: stretch; gap: 10px; flex: none; }
+      /* In the lead block the pair sits with nothing to absorb the 9px height
+         difference a .cardfoot min-height hides, so match them box for box. */
+      .leadside .open,
+      .leadside .pill {
+        display: inline-flex;
+        align-items: center;
+        min-height: 31.5px;
+        padding-top: 0;
+        padding-bottom: 0;
+      }
+      .lead:hover .open { background: var(--accent); color: #fff; }
+      .sectionhead.subhead { margin-top: 30px; }
+      .section.gallery .sectionhead.subhead h2 { font-size: 19px; }
+
+      /* ---- gallery cards ---- */
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(330px, 100%), 1fr));
+        gap: 20px;
+        align-content: start;
+      }
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--line-strong);
+        border-top: 4px solid var(--accent);
+        border-radius: 8px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        color: var(--ink);
+        box-shadow: 0 1px 2px rgba(23, 28, 26, 0.04), 0 3px 10px rgba(23, 28, 26, 0.05);
+        transition: box-shadow 0.12s, transform 0.12s, border-color 0.12s;
+      }
+      .card:hover {
+        text-decoration: none;
+        transform: translateY(-3px);
+        border-color: var(--accent);
+        box-shadow: 0 2px 4px rgba(23, 28, 26, 0.06), 0 10px 26px rgba(23, 28, 26, 0.12);
+      }
+      .plate { background: var(--paper); border-bottom: 1px solid var(--line-strong); padding: 12px 16px 8px; }
+      .plate svg { display: block; width: 100%; height: auto; }
+      .platelabel {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+        margin: 0 0 9px;
+      }
+      .cardbody { padding: 14px 18px 15px; display: flex; flex-direction: column; flex: 1; }
+      .card h3 {
+        font-family: var(--font-mono);
+        font-size: 15.5px;
+        font-weight: 600;
+        letter-spacing: -0.005em;
+        margin: 0;
+        color: var(--accent-ink);
+      }
+      .card p { color: var(--muted); font-size: 13.5px; line-height: 1.5; margin: 9px 0 0; }
+      .cardfoot {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-top: auto;
+        min-height: 51px;
+        padding-top: 14px;
+        border-top: 1px solid var(--line);
+      }
+      .cardfoot.flush { margin-top: 16px; }
+      .open {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--accent-ink);
+        background: var(--accent-soft);
+        border: 1px solid var(--accent);
+        border-radius: 4px;
+        padding: 5px 11px;
+      }
+      .card:hover .open { background: var(--accent); color: #fff; }
+      .pill {
+        font-family: var(--font-mono);
+        background: var(--accent-soft);
+        color: var(--accent-ink);
+        border: 1px solid var(--accent);
+        border-radius: 3px;
+        padding: 2px 7px;
+        font-size: 11px;
+      }
+
+
+      /* ---- pipeline figure ---- */
+      .figwrap {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 26px 24px 18px;
+      }
+      .figwrap figure { margin: 0; }
+      .figscroll { overflow-x: auto; }
+      .figwrap svg {
+        display: block;
+        width: 100%;
+        min-width: 916px;
+        height: auto;
+        max-width: 1040px;
+        margin: 0 auto;
+      }
+      .fighint {
+        font-family: var(--font-mono);
+        font-size: 10.5px;
+        color: var(--muted);
+        margin: 10px 0 0;
+        display: none;
+      }
+      @media (max-width: 976px) {
+        .fighint { display: block; }
+        .figwrap { padding-left: 16px; padding-right: 16px; }
+        .figwrap figcaption .gloss { max-width: none; }
+      }
+      @media (max-width: 560px) {
+        .figwrap figcaption .claim { font-size: 12.5px; text-wrap: balance; }
+      }
+      .figwrap figcaption {
+        margin: 16px auto 0;
+        max-width: 1000px;
+      }
+      .figwrap figcaption .claim {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--ink);
+        letter-spacing: -0.005em;
+        line-height: 1.45;
+      }
+      .figwrap figcaption .gloss {
+        display: block;
+        font-size: 12.5px;
+        color: var(--muted);
+        line-height: 1.55;
+        margin-top: 5px;
+        max-width: 88ch;
+        text-wrap: balance;
+      }
+      .dlabel { font-family: var(--font-mono); font-size: 11.5px; font-weight: 600; fill: var(--accent-ink); }
+      .dsub { font-family: var(--font-mono); font-size: 10px; fill: var(--muted); }
+      .dedge { font-family: var(--font-mono); font-size: 10px; fill: var(--muted); }
+      .dstage { font-family: var(--font-sans); font-size: 10px; font-weight: 600; fill: var(--muted); letter-spacing: 0.07em; }
+      .drepo { font-family: var(--font-mono); font-size: 9.5px; font-weight: 600; fill: var(--accent); }
+
+      /* ---- fidelity ---- */
+      .fid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 14px;
+        align-items: stretch;
+      }
+      .fidnote {
+        font-size: 14px;
+        line-height: 1.6;
+        color: var(--muted);
+        margin: 0 0 20px;
+        max-width: 86ch;
+      }
+      .fidnote b { color: var(--ink); font-weight: 600; }
+      .fidcard {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-top: 3px solid var(--accent);
+        border-radius: 6px;
+        padding: 12px 13px 13px;
+        color: var(--ink);
+        transition: box-shadow 0.12s, transform 0.12s, border-color 0.12s;
+      }
+      .fidcard:hover {
+        text-decoration: none;
+        transform: translateY(-2px);
+        border-color: var(--accent);
+        box-shadow: 0 2px 10px rgba(23, 28, 26, 0.09);
+      }
+      .fidname {
+        display: block;
+        font-family: var(--font-mono);
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--accent-ink);
+        overflow-wrap: anywhere;
+      }
+      .fidrole {
+        display: block;
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: lowercase;
+        color: var(--accent);
+        margin-top: 3px;
+      }
+      .fidtext {
+        display: block;
+        font-size: 12px;
+        line-height: 1.45;
+        color: var(--muted);
+        margin-top: 7px;
+      }
+
+
+      /* ---- publications ---- */
+      .pubs { display: flex; flex-direction: column; gap: 0; }
+      .pub {
+        display: grid;
+        grid-template-columns: 94px minmax(0, 1fr) auto;
+        gap: 6px 18px;
+        align-items: baseline;
+        padding: 15px 2px 16px;
+        border-top: 1px solid var(--line);
+        color: var(--ink);
+      }
+      .pub:first-child { border-top: 0; }
+      .pub:hover { text-decoration: none; }
+      .pub:hover .pubtitle { color: var(--accent-ink); text-decoration: underline; }
+      .pubwhen { font-family: var(--font-mono); font-size: 11.5px; color: var(--muted); }
+      .pubtitle {
+        display: block;
+        font-size: 14.5px;
+        font-weight: 600;
+        letter-spacing: -0.005em;
+        color: var(--accent-ink);
+        line-height: 1.35;
+      }
+      .pubwho { display: block; font-size: 12.5px; color: var(--muted); margin-top: 4px; line-height: 1.45; }
+      .pubkind {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        color: var(--muted);
+        border: 1px solid var(--line-strong);
+        border-radius: 3px;
+        padding: 2px 7px;
+        white-space: nowrap;
+      }
+      .pub:hover .pubkind { border-color: var(--accent); color: var(--accent-ink); }
+      @media (max-width: 640px) {
+        .pub { grid-template-columns: minmax(0, 1fr) auto; }
+        .pubwhen { grid-column: 1 / -1; order: -1; }
+      }
+
+      /* ---- where this fits ---- */
+      .fits {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-left: 3px solid var(--accent);
+        border-radius: 8px;
+        padding: 20px 22px 21px;
+      }
+      .fits p { margin: 0; font-size: 14px; line-height: 1.6; color: var(--muted); max-width: 86ch; }
+      .fits p + p { margin-top: 12px; }
+      .fits p b { color: var(--ink); font-weight: 600; }
+      .fits .links { display: flex; flex-wrap: wrap; gap: 10px 20px; margin-top: 15px; font-size: 13px; }
+
+      /* ---- footer ---- */
+      footer { border-top: 1px solid var(--line); background: var(--panel); margin-top: 8px; }
+      .footinner { padding-top: 20px; padding-bottom: 28px; }
+      .footnote {
+        margin: 0 0 13px;
+        font-size: 12.5px;
+        color: var(--muted);
+        line-height: 1.55;
+        max-width: 90ch;
+      }
+      .footnote b { color: var(--ink); }
+      .footmeta { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; font-size: 12px; }
+      .ghlink { display: inline-flex; align-items: center; gap: 6px; color: var(--accent); font-weight: 500; }
+      .linkgloss { color: var(--muted); font-weight: 400; }
+      .ghlink svg { vertical-align: middle; flex: none; }
+
+      @media (max-width: 980px) {
+        .fid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      }
+      @media (max-width: 700px) {
+        .fid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      }
+      @media (max-width: 460px) {
+        .fid { grid-template-columns: 1fr; }
+      }
+      @media (max-width: 640px) {
+        .wrap { padding-left: 16px; padding-right: 16px; }
+        .heroinner { padding-top: 36px; padding-bottom: 32px; }
+        .hero .lede { font-size: 15.5px; }
+        .hero h1 { max-width: none; }
+        .section { padding-top: 32px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .card { transition: none; }
+        .card:hover { transform: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="masthead">
+        <div class="wrap mastinner">
+          <span class="mastname">
+            <span class="wordmark">BLIS</span>
+            <span class="tagline">blackbox inference simulator</span>
+          </span>
+          <span class="mastlink">
+            an incubating component of <a href="https://llm-d.ai">llm-d</a>
+          </span>
+        </div>
+      </header>
+
+      <section class="hero">
+        <div class="wrap heroinner">
+          <h1>Know how a serving configuration performs before you book the accelerators.</h1>
+          <p class="lede">
+            BLIS is a discrete-event simulator for LLM serving. It models admission, routing,
+            scheduling, batching and KV-cache behaviour on a CPU, pricing each forward pass from a
+            model graph, a chip and calibrated coefficients, then sweeps that over configurations:
+            tensor parallelism, instance counts, batch limits.
+          </p>
+          <div class="herometa">
+            <span class="metricintro">Headline metrics</span>
+            <span class="tag" title="Output tokens per second per accelerator">tok/s per accelerator</span>
+            <span class="tag" title="Output tokens per second a single session sees">per-user tok/s</span>
+            <span class="tag" title="Time to first token, 99th percentile">TTFT p99</span>
+            <span class="tag" title="Time per output token, the gap between output tokens">TPOT</span>
+            <span class="tag" title="End-to-end request latency, 95th percentile">E2E p95</span>
+          </div>
+          <p class="metricgloss">
+            TTFT is time to first token, TPOT the time per output token, E2E the end-to-end request
+            latency. A run reports far more than these five: full TTFT, ITL and E2E distributions,
+            per-SLO-class goodput, throughput, completed requests and preemption counts. See
+            <a href="https://github.com/inference-sim/inference-sim/blob/main/docs/guide/results.md">interpreting
+            results</a> for the full set.
+          </p>
+        </div>
+      </section>
+
+      <main>
+        <section class="section gallery">
+          <div class="wrap">
+            <div class="sectionhead">
+              <h2>Start with the simulator</h2>
+            </div>
+            <a class="lead" href="https://github.com/inference-sim/inference-sim">
+              <span class="leadmain">
+                <span class="leadeyebrow">The simulator</span>
+                <span class="leadname">inference-sim/inference-sim</span>
+                <span class="leadtext">
+                  The discrete-event engine that produces everything below: the cost model, the
+                  embedded llm-d router, and the Go implementation that prices one forward pass
+                  from a model graph and a chip. Start here.
+                </span>
+              </span>
+              <span class="leadside">
+                <span class="open">view source</span>
+                <span class="pill">Apache-2.0</span>
+              </span>
+            </a>
+            <div class="sectionhead subhead">
+              <h2>What it produces</h2>
+              <span class="note">
+                Static pages built from past simulation runs, not a live service.
+              </span>
+            </div>
+            <div class="cards">
+              <a class="card" href="https://inference-sim.github.io/blis-config-search/">
+                <div class="plate">
+                  <p class="platelabel">tok/s/GPU vs per-user tok/s</p>
+                  <svg viewBox="0 0 340 150" role="img" aria-label="Scatter plot of accelerator efficiency against per-user token rate, with a Pareto frontier along the upper edge and dominated configurations below it.">
+                    <g stroke="var(--line-strong)" stroke-width="1" fill="none">
+                      <path d="M28 14V126H326" />
+                    </g>
+                    <g fill="var(--line-strong)">
+                      <circle cx="62" cy="106" r="2.5" /><circle cx="84" cy="98" r="2.5" />
+                      <circle cx="72" cy="118" r="2.5" /><circle cx="106" cy="104" r="2.5" />
+                      <circle cx="98" cy="88" r="2.5" /><circle cx="124" cy="92" r="2.5" />
+                      <circle cx="118" cy="114" r="2.5" /><circle cx="142" cy="80" r="2.5" />
+                      <circle cx="150" cy="100" r="2.5" /><circle cx="164" cy="90" r="2.5" />
+                      <circle cx="172" cy="110" r="2.5" /><circle cx="186" cy="86" r="2.5" />
+                      <circle cx="196" cy="100" r="2.5" /><circle cx="208" cy="92" r="2.5" />
+                      <circle cx="218" cy="110" r="2.5" /><circle cx="232" cy="98" r="2.5" />
+                      <circle cx="244" cy="112" r="2.5" /><circle cx="256" cy="104" r="2.5" />
+                      <circle cx="268" cy="118" r="2.5" /><circle cx="282" cy="110" r="2.5" />
+                      <circle cx="294" cy="120" r="2.5" /><circle cx="196" cy="116" r="2.5" />
+                    </g>
+                    <path
+                      d="M48 28C96 30 134 40 176 58C218 76 262 96 304 118"
+                      fill="none" stroke="var(--accent)" stroke-width="1.75"
+                      stroke-linecap="round" />
+                    <g fill="var(--accent)">
+                      <circle cx="48" cy="28" r="3.5" /><circle cx="96" cy="31" r="3.5" />
+                      <circle cx="140" cy="43" r="3.5" /><circle cx="186" cy="63" r="3.5" />
+                      <circle cx="230" cy="82" r="3.5" /><circle cx="268" cy="98" r="3.5" />
+                      <circle cx="304" cy="118" r="3.5" />
+                    </g>
+                  </svg>
+                </div>
+                <div class="cardbody">
+                  <h3>config-search</h3>
+                  <p>
+                    Pareto-optimal serving configurations for a model, accelerator budget and
+                    workload. Each opens a full report with the deployment spec behind it.
+                  </p>
+                  <div class="cardfoot">
+                    <span class="open">open reports</span>
+                    <span class="pill">Apache-2.0</span>
+                  </div>
+                </div>
+              </a>
+
+              <a class="card" href="https://inference-sim.github.io/accuracy-dashboard/">
+                <div class="plate">
+                  <p class="platelabel">predicted vs measured TPOT</p>
+                  <svg viewBox="0 0 340 150" role="img" aria-label="Scatter plot of predicted against measured time per output token, clustered along the parity line with two over-predictions marked.">
+                    <g stroke="var(--line-strong)" stroke-width="1" fill="none">
+                      <path d="M28 14V126H326" />
+                      <path d="M28 126L326 18" stroke-dasharray="4 4" />
+                    </g>
+                    <g fill="var(--accent)">
+                      <circle cx="58" cy="112" r="3" /><circle cx="84" cy="105" r="3" />
+                      <circle cx="104" cy="94" r="3" /><circle cx="122" cy="90" r="3" />
+                      <circle cx="134" cy="88" r="3" /><circle cx="158" cy="80" r="3" />
+                      <circle cx="176" cy="70" r="3" /><circle cx="194" cy="66" r="3" />
+                      <circle cx="212" cy="56" r="3" /><circle cx="230" cy="52" r="3" />
+                      <circle cx="252" cy="44" r="3" /><circle cx="266" cy="40" r="3" />
+                      <circle cx="284" cy="32" r="3" /><circle cx="306" cy="26" r="3" />
+                    </g>
+                    <g fill="var(--over-ink)">
+                      <circle cx="146" cy="62" r="3" /><circle cx="224" cy="78" r="3" />
+                    </g>
+                  </svg>
+                </div>
+                <div class="cardbody">
+                  <h3>simulator accuracy</h3>
+                  <p>
+                    How closely predictions track real measurements, checked against benchmark
+                    runs on the same model, hardware and load, broken out per model.
+                  </p>
+                  <div class="cardfoot">
+                    <span class="open">open dashboard</span>
+                    <span class="pill">Apache-2.0</span>
+                  </div>
+                </div>
+              </a>
+
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="wrap">
+            <div class="sectionhead">
+              <h2>How the numbers stay honest</h2>
+              <span class="note">Every figure traces back to a versioned input.</span>
+            </div>
+            <p class="fidnote">
+              Each input a prediction depends on lives in its own versioned repository, so any
+              number here can be traced to the exact version that produced it. The
+              <a href="https://inference-sim.github.io/accuracy-dashboard/">accuracy dashboard</a>
+              reports how far those predictions sat from measured runs, per model.
+            </p>
+            <div class="fid">
+              <a class="fidcard" href="https://github.com/inference-sim/blis-catalog">
+                <span class="fidname">blis-catalog</span>
+                <span class="fidrole">inputs</span>
+                <span class="fidtext">Models, hardware and workloads, pinned.</span>
+              </a>
+              <a class="fidcard" href="https://github.com/inference-sim/blis-registry">
+                <span class="fidname">blis-registry</span>
+                <span class="fidrole">calibration</span>
+                <span class="fidtext">Coefficients, fitted globally and versioned.</span>
+              </a>
+              <a class="fidcard" href="https://github.com/inference-sim/blis-latency-kernel">
+                <span class="fidname">blis-latency-kernel</span>
+                <span class="fidrole">pricing</span>
+                <span class="fidtext">Every step time and memory figure.</span>
+              </a>
+              <a class="fidcard" href="https://github.com/inference-sim/blis-vllm">
+                <span class="fidname">blis-vllm</span>
+                <span class="fidrole">engine</span>
+                <span class="fidtext">vLLM behaviour, pinned to one release.</span>
+              </a>
+              <a class="fidcard" href="https://github.com/inference-sim/blis-schemas">
+                <span class="fidname">blis-schemas</span>
+                <span class="fidrole">contracts</span>
+                <span class="fidtext">What passes between the four others.</span>
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="wrap">
+            <div class="sectionhead">
+              <h2>How a prediction is made</h2>
+              <span class="note">No accelerator is touched at any stage.</span>
+            </div>
+            <div class="figwrap">
+              <figure>
+                <div class="figscroll">
+                <svg viewBox="0 0 1020 330" role="img"
+                  aria-label="Pipeline annotated with the repository behind each stage. Model graph and chip come from blis-catalog, calibration coefficients from blis-registry; blis-latency-kernel prices one forward pass; the sweep calls that kernel once per candidate and scores each under the workload; a filter drops any candidate that another matches or beats on every metric while winning on at least one, leaving the frontier. blis-schemas defines the contracts between every stage.">
+                  <defs>
+                    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5"
+                      markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                      <path d="M0 0L10 5L0 10z" fill="var(--line-strong)" />
+                    </marker>
+                    <marker id="aha" viewBox="0 0 10 10" refX="9" refY="5"
+                      markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                      <path d="M0 0L10 5L0 10z" fill="var(--accent)" />
+                    </marker>
+                  </defs>
+
+                  <text class="dstage" x="14" y="20">INPUTS</text>
+                  <text class="dstage" x="252" y="20">COST MODEL</text>
+                  <text class="dstage" x="536" y="20">SWEEP</text>
+                  <text class="dstage" x="800" y="20">FILTER</text>
+
+                  <g fill="var(--paper)" stroke="var(--line-strong)" stroke-width="1.25">
+                    <rect x="14" y="34" width="168" height="58" rx="5" />
+                    <rect x="14" y="102" width="168" height="58" rx="5" />
+                    <rect x="14" y="170" width="168" height="58" rx="5" />
+                  </g>
+                  <text class="dlabel" x="28" y="53">model graph</text>
+                  <text class="dsub" x="28" y="68">layers, widths, MoE</text>
+                  <text class="drepo" x="28" y="84">blis-catalog</text>
+                  <text class="dlabel" x="28" y="121">chip</text>
+                  <text class="dsub" x="28" y="136">flops, bandwidth, HBM</text>
+                  <text class="drepo" x="28" y="152">blis-catalog</text>
+                  <text class="dlabel" x="28" y="189">coefficients</text>
+                  <text class="dsub" x="28" y="204">fitted once, versioned</text>
+                  <text class="drepo" x="28" y="220">blis-registry</text>
+
+                  <g stroke="var(--line-strong)" stroke-width="1.25" fill="none" marker-end="url(#ah)">
+                    <path d="M182 63H216V114H246" />
+                    <path d="M182 131H246" />
+                    <path d="M182 199H216V148H246" />
+                  </g>
+
+                  <rect x="252" y="90" width="170" height="86" rx="6"
+                    fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5" />
+                  <text class="dlabel" x="266" y="114">price one</text>
+                  <text class="dlabel" x="266" y="130">forward pass</text>
+                  <text class="dsub" x="266" y="146">analytic + learned</text>
+                  <text class="drepo" x="266" y="164">blis-latency-kernel</text>
+
+                  <path d="M422 131H524" stroke="var(--accent)" stroke-width="1.5"
+                    fill="none" marker-end="url(#aha)" />
+                  <text class="dedge" x="432" y="108">milliseconds</text>
+                  <text class="dedge" x="432" y="122">per pass</text>
+
+                  <rect x="536" y="34" width="206" height="194" rx="6"
+                    fill="var(--panel)" stroke="var(--line-strong)" stroke-width="1.25" />
+                  <text class="dlabel" x="550" y="58">sweep candidates</text>
+                  <text class="dsub" x="550" y="74">within the accelerator budget</text>
+                  <g fill="var(--paper)" stroke="var(--line)" stroke-width="1">
+                    <rect x="550" y="86" width="178" height="22" rx="3" />
+                    <rect x="550" y="114" width="178" height="22" rx="3" />
+                    <rect x="550" y="142" width="178" height="22" rx="3" />
+                  </g>
+                  <text class="dsub" x="560" y="101">tensor-parallel width</text>
+                  <text class="dsub" x="560" y="129">instances, replicas</text>
+                  <text class="dsub" x="560" y="157">max-num-seqs, batched</text>
+                  <text class="dsub" x="550" y="186">each candidate scored</text>
+                  <text class="dsub" x="550" y="202">under your workload</text>
+
+                  <path d="M600 228V262H337V182" stroke="var(--accent)" stroke-width="1.5"
+                    fill="none" marker-end="url(#aha)" stroke-dasharray="3 3" />
+                  <text class="dedge" x="354" y="278">one call per candidate</text>
+
+                  <path d="M742 131H794" stroke="var(--line-strong)" stroke-width="1.25"
+                    fill="none" marker-end="url(#ah)" />
+                  <text class="dedge" x="746" y="123">scored</text>
+
+<rect x="800" y="34" width="206" height="194" rx="6"
+                    fill="var(--panel)" stroke="var(--line-strong)" stroke-width="1.25" />
+                  <text class="dlabel" x="814" y="58">keep the best</text>
+                  <text class="dlabel" x="814" y="74">trade-offs</text>
+                  <text class="dsub" x="814" y="100">what survives is the</text>
+                  <text class="dsub" x="814" y="116">frontier, plotted in</text>
+                  <text class="dsub" x="814" y="132">config-search</text>
+
+                  <path d="M14 300H1006" stroke="var(--line)" stroke-width="1" fill="none" />
+                  <text class="drepo" x="14" y="320">blis-schemas</text>
+                  <text class="dsub" x="104" y="320">defines the contract every box above reads and writes</text>
+                </svg>
+                </div>
+                <p class="fighint">Scroll the diagram sideways to follow the flow.</p>
+                <figcaption>
+                  <span class="claim">One cost-model call per candidate, then drop the strictly worse ones.</span>
+                  <span class="gloss">
+                    A candidate is dropped when another matches or beats it on every metric and
+                    wins on at least one, so nothing left is strictly worse than anything else:
+                    that surviving set is the frontier. Coefficients are fitted once and reused, so
+                    no per-model or per-accelerator profiling run is needed. Each stage is a
+                    separate versioned repository, so any number here traces back to the catalog
+                    entry, coefficients and kernel behind it.
+                  </span>
+                </figcaption>
+              </figure>
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="wrap">
+            <div class="sectionhead">
+              <h2>Papers and write-ups</h2>
+              <span class="note">Most of the blog posts are on the AI-native Systems Research site.</span>
+            </div>
+            <div class="pubs">
+              <a class="pub" href="https://arxiv.org/abs/2610.14255">
+                <span class="pubwhen">Oct 2026</span>
+                <span>
+                  <span class="pubtitle">Simulate Before You Scale: High-Fidelity LLM Inference Planning Without GPUs</span>
+                  <span class="pubwho">Guhathakurta, Toslali, Parthasarathy, Chen, Kalantar, Masluk, Ramani, Tantawi, Oliveira. Accepted at ACM SIGMETRICS 2027. arXiv:2610.14255</span>
+                </span>
+                <span class="pubkind">paper</span>
+              </a>
+              <a class="pub" href="https://ai-native-systems-research.github.io/ai-native-systems-research/blog/2026/08/06/what-weve-learned-about-modeling-llm-latency/">
+                <span class="pubwhen">Aug 2026</span>
+                <span>
+                  <span class="pubtitle">What We&rsquo;ve Learned About Modeling LLM Latency</span>
+                  <span class="pubwho">How one forward pass is predicted on a CPU, how well that holds on models and accelerators it never trained on, and where it still falls short.</span>
+                </span>
+                <span class="pubkind">blog</span>
+              </a>
+              <a class="pub" href="https://ai-native-systems-research.github.io/ai-native-systems-research/blog/2026/07/27/from-simulation-to-production-part-ii-soft-reflective-flow-control-for-llm-d/">
+                <span class="pubwhen">Jul 2026</span>
+                <span>
+                  <span class="pubtitle">From Simulation to Production Part II: Soft-Reflective Flow Control for llm-d</span>
+                  <span class="pubwho">Simulation-driven discovery of a soft-reflective ceiling policy, cutting critical-class TTFT by up to 98% near capacity.</span>
+                </span>
+                <span class="pubkind">blog</span>
+              </a>
+              <a class="pub" href="https://ai-native-systems-research.github.io/ai-native-systems-research/blog/2026/06/05/blis-evolving-llm-d-at-simulation-speed/">
+                <span class="pubwhen">Jun 2026</span>
+                <span>
+                  <span class="pubtitle">BLIS: Evolving llm-d at Simulation Speed</span>
+                  <span class="pubwho">Coupled routing, admission, batching and autoscaling policies, and two case studies showing where calibration holds and where it does not.</span>
+                </span>
+                <span class="pubkind">blog</span>
+              </a>
+              <a class="pub" href="https://ai-native-systems-research.github.io/ai-native-systems-research/blog/2026/05/13/from-simulation-to-production-how-an-ai-native-pipeline-discovered-a-better-admission-controller-for-llm-d/">
+                <span class="pubwhen">May 2026</span>
+                <span>
+                  <span class="pubtitle">From Simulation to Production: How an AI-Native Pipeline Discovered a Better Admission Controller for llm-d</span>
+                  <span class="pubwho">Closing the loop end to end: observe, reason, change, validate, deploy.</span>
+                </span>
+                <span class="pubkind">blog</span>
+              </a>
+              <a class="pub" href="https://ai-native-systems-research.github.io/ai-native-systems-research/blog/2026/04/09/the-physics-of-high-fidelity-distributed-inference-platform-simulation/">
+                <span class="pubwhen">Apr 2026</span>
+                <span>
+                  <span class="pubtitle">The Physics of High-Fidelity Distributed Inference Platform Simulation</span>
+                  <span class="pubwho">What it takes to make a discrete-event simulator faithful enough to guide capacity planning at production scale.</span>
+                </span>
+                <span class="pubkind">blog</span>
+              </a>
+              <a class="pub" href="https://ai-native-systems-research.github.io/ai-native-systems-research/blog/2026/03/05/why-simulate-before-you-scale/">
+                <span class="pubwhen">Mar 2026</span>
+                <span>
+                  <span class="pubtitle">Why Simulate Before You Scale</span>
+                  <span class="pubwho">A flight-simulator approach to capacity planning that runs on a laptop, with no accelerators required.</span>
+                </span>
+                <span class="pubkind">blog</span>
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <section class="section last">
+          <div class="wrap">
+            <div class="sectionhead">
+              <h2>Where this fits</h2>
+            </div>
+            <div class="fits">
+              <p>
+                <b>BLIS is an incubating component of llm-d</b>, the Kubernetes-native stack for
+                distributed LLM inference. llm-d deploys and scales serving engines across a
+                cluster; BLIS answers the question that comes first, which is what to deploy. The
+                engine flags a search returns, things like
+                <span class="mono">max-num-seqs</span>,
+                <span class="mono">max-num-batched-tokens</span> and tensor-parallel width, are the
+                knobs you then set on a real deployment.
+              </p>
+              <p>
+                The simulator runs llm-d's own router. Every multi-instance cluster routes
+                through the real Endpoint Picker embedded in-process, reading a deployment's own
+                <span class="mono">EndpointPickerConfig</span>, EPP flags and
+                <span class="mono">InferencePool</span> and
+                <span class="mono">InferenceObjective</span> manifests, so the routing config you
+                simulate is the one you deploy. Admission and flow control come from the router
+                too.
+              </p>
+              <p>
+                That loop has already returned policies to llm-d. Two were found in simulation,
+                validated on hardware and merged: a
+                <a href="https://ai-native-systems-research.github.io/ai-native-systems-research/blog/2026/05/13/from-simulation-to-production-how-an-ai-native-pipeline-discovered-a-better-admission-controller-for-llm-d/">probabilistic
+                admitter</a> and a
+                <a href="https://ai-native-systems-research.github.io/ai-native-systems-research/blog/2026/07/27/from-simulation-to-production-part-ii-soft-reflective-flow-control-for-llm-d/">soft-reflective
+                flow-control ceiling</a>, both cutting tail latency substantially on overloaded
+                workloads. Each has a write-up giving the numbers and the method.
+              </p>
+              <div class="links">
+                <a href="https://llm-d.ai">llm-d.ai</a>
+                <a class="ghlink" href="https://github.com/llm-d">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.42 7.42 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A7.995 7.995 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/>
+                  </svg>
+                  github.com/llm-d
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <div class="wrap footinner">
+          <p class="footnote">
+            <b>Simulator predictions, not measured results.</b> The pages here are built from
+            past simulation runs rather than served live. Check the accuracy dashboard for how
+            close predictions came on your model, and validate against your own hardware before
+            deploying.
+          </p>
+          <div class="footmeta">
+            <a class="ghlink" href="https://github.com/inference-sim">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.42 7.42 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A7.995 7.995 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/>
+              </svg>
+              github.com/inference-sim
+              <span class="linkgloss">all BLIS repositories</span>
+            </a>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>
