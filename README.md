@@ -1,6 +1,6 @@
 # llm-d-perf-simulator
 
-The landing page for **BLIS**, the Blackbox Inference Simulator: a single
+The landing page for **BLIS**, the llm-d performance simulator: a single
 self-contained `index.html` that states what BLIS answers, links the dashboards a
 visitor can open, shows how a prediction is made, and lists the papers and
 write-ups.
