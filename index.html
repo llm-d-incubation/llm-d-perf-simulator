@@ -21,6 +21,12 @@
         --accent-ink: #0f4438;
         --accent-soft: #d9e9e1;
         --over-ink: #a3301f;
+        --alt-ink: #34366e;
+        --alt-bg: #dcdcf0;
+        --alt-line: #7679c4;
+        --warn-ink: #7a4a12;
+        --warn-bg: #f3e3c9;
+        --warn-line: #d8b984;
         --font-sans: "IBM Plex Sans", -apple-system, "Segoe UI", system-ui, sans-serif;
         --font-mono: "IBM Plex Mono", "SFMono-Regular", ui-monospace, Menlo, monospace;
         --measure: 1160px;
@@ -481,7 +487,11 @@
         padding: 2px 7px;
         white-space: nowrap;
       }
-      .pub:hover .pubkind { border-color: var(--accent); color: var(--accent-ink); }
+      /* One color per kind, from the tag palettes the dashboards share. */
+      .pubkind.paper { color: var(--accent-ink); background: var(--accent-soft); border-color: var(--accent); }
+      .pubkind.blog { color: var(--alt-ink); background: var(--alt-bg); border-color: var(--alt-line); }
+      .pubkind.talk { color: var(--warn-ink); background: var(--warn-bg); border-color: var(--warn-line); }
+      .pub:hover .pubkind { border-color: currentColor; }
       @media (max-width: 640px) {
         .pub { grid-template-columns: minmax(0, 1fr) auto; }
         .pubwhen { grid-column: 1 / -1; order: -1; }
@@ -548,7 +558,7 @@
           <h1>Know how a serving configuration performs before you book the accelerators.</h1>
           <p class="lede">
             BLIS is a digital twin of llm-d: a discrete-event simulator that models admission,
-            routing, scheduling, batching and KV-cache behaviour on a CPU, pricing a serving
+            routing, and the scheduling, batching and KV-cache behavior of vLLM and SGLang on a CPU, pricing a serving
             configuration from a model graph, a chip and calibrated coefficients, without touching
             an accelerator. Evaluating a configuration is cheap, so thousands can be swept to find
             the best.
@@ -567,9 +577,9 @@
                 <span class="leadeyebrow">The simulator</span>
                 <span class="leadname">inference-sim/inference-sim</span>
                 <span class="leadtext">
-                  The discrete-event engine that produces everything below: the cost model, the
-                  embedded llm-d router, and the Go implementation that prices one forward pass
-                  from a model graph and a chip. Start here.
+                  The discrete-event simulator that produces everything below: workloads, the cluster,
+                  the embedded llm-d router, and the engine models it steps, each step priced from a
+                  model graph and a chip. Start here.
                 </span>
               </span>
               <span class="leadside">
@@ -760,7 +770,7 @@
               <figure>
                 <div class="figscroll">
                 <svg viewBox="0 0 1020 330" role="img"
-                  aria-label="Pipeline annotated with the repository behind each stage. Model graph and chip come from blis-catalog, calibration coefficients from blis-registry; blis-latency-kernel prices one forward pass, which feeds a discrete-event simulation of routing, scheduling and KV cache that returns serving metrics; the sweep runs that simulation once per candidate and scores each under the workload; a filter drops any candidate that another matches or beats on every metric while winning on at least one, leaving the frontier. blis-schemas defines the contracts between every stage.">
+                  aria-label="Pipeline annotated with the repository behind each stage. Model graph, chip and calibration coefficients come from blis-substrate's catalog and registry; blis-substrate's kernel prices one forward pass, which feeds a discrete-event simulation of routing, scheduling and KV cache, run by inference-sim with the blis-vllm and blis-sglang engine models, that returns serving metrics; the sweep runs that simulation once per candidate and scores each under the workload; a filter drops any candidate that another matches or beats on every metric while winning on at least one, leaving the frontier. blis-substrate's contracts define the interfaces between every stage.">
                   <defs>
                     <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5"
                       markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -784,13 +794,13 @@
                   </g>
                   <text class="dlabel" x="28" y="53">model graph</text>
                   <text class="dsub" x="28" y="68">layers, widths, MoE</text>
-                  <text class="drepo" x="28" y="84">blis-catalog</text>
+                  <text class="drepo" x="28" y="84">blis-substrate/catalog</text>
                   <text class="dlabel" x="28" y="121">chip</text>
                   <text class="dsub" x="28" y="136">flops, bandwidth, HBM</text>
-                  <text class="drepo" x="28" y="152">blis-catalog</text>
+                  <text class="drepo" x="28" y="152">blis-substrate/catalog</text>
                   <text class="dlabel" x="28" y="189">coefficients</text>
                   <text class="dsub" x="28" y="204">fitted once, versioned</text>
-                  <text class="drepo" x="28" y="220">blis-registry</text>
+                  <text class="drepo" x="28" y="220">blis-substrate/registry</text>
 
                   <g stroke="var(--line-strong)" stroke-width="1.25" fill="none">
                     <path d="M182 63 H224" />
@@ -804,17 +814,19 @@
                     fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5" />
                   <text class="dlabel" x="266" y="69">price one</text>
                   <text class="dlabel" x="266" y="85">forward pass</text>
-                  <text class="drepo" x="266" y="101">blis-latency-kernel</text>
+                  <text class="drepo" x="266" y="101">blis-substrate/kernel</text>
 
                   <path d="M337 110 V134" stroke="var(--accent)" stroke-width="1.5"
                     fill="none" marker-end="url(#aha)" />
                   <text class="dedge" x="345" y="126">per-pass cost</text>
 
-                  <rect x="252" y="138" width="170" height="74" rx="6"
+                  <rect x="252" y="138" width="170" height="90" rx="6"
                     fill="var(--panel)" stroke="var(--accent)" stroke-width="1.25" />
-                  <text class="dlabel" x="266" y="166">discrete-event sim</text>
-                  <text class="dsub" x="266" y="186">routing, scheduling,</text>
-                  <text class="dsub" x="266" y="200">KV cache</text>
+                  <text class="dlabel" x="266" y="160">discrete-event sim</text>
+                  <text class="dsub" x="266" y="177">routing, scheduling,</text>
+                  <text class="dsub" x="266" y="190">KV cache</text>
+                  <text class="drepo" x="266" y="207">inference-sim</text>
+                  <text class="drepo" x="266" y="220">blis-vllm, blis-sglang</text>
 
                   <path d="M422 175 H524" stroke="var(--accent)" stroke-width="1.5"
                     fill="none" marker-end="url(#aha)" />
@@ -835,7 +847,7 @@
                   <text class="dsub" x="550" y="186">each candidate scored</text>
                   <text class="dsub" x="550" y="202">under your workload</text>
 
-                  <path d="M600 228V276H337V222" stroke="var(--accent)" stroke-width="1.5"
+                  <path d="M600 228V276H337V238" stroke="var(--accent)" stroke-width="1.5"
                     fill="none" marker-end="url(#aha)" stroke-dasharray="3 3" />
                   <text class="dedge" x="354" y="292">one run per candidate</text>
 
@@ -852,8 +864,8 @@
                   <text class="dsub" x="814" y="132">config-search</text>
 
                   <path d="M14 300H1006" stroke="var(--line)" stroke-width="1" fill="none" />
-                  <text class="drepo" x="14" y="320">blis-schemas</text>
-                  <text class="dsub" x="104" y="320">defines the contract every box above reads and writes</text>
+                  <text class="drepo" x="14" y="320">blis-substrate/contracts</text>
+                  <text class="dsub" x="164" y="320">define the contract every box above reads and writes</text>
                 </svg>
                 </div>
                 <p class="fighint">Scroll the diagram sideways to follow the flow.</p>
@@ -868,15 +880,14 @@
               </figure>
               <div class="provenance">
                 <p class="provlead">
-                  Each stage is its own versioned repository, so every number traces back to the
-                  exact input behind it.
+                  Each simulator release pins an exact commit of every repository below, so every
+                  number traces back to the exact input behind it.
                 </p>
                 <ul class="provlist">
-                  <li><a href="https://github.com/inference-sim/blis-catalog"><span class="provname">blis-catalog</span> <span class="provrole">inputs</span></a></li>
-                  <li><a href="https://github.com/inference-sim/blis-registry"><span class="provname">blis-registry</span> <span class="provrole">calibration</span></a></li>
-                  <li><a href="https://github.com/inference-sim/blis-latency-kernel"><span class="provname">blis-latency-kernel</span> <span class="provrole">pricing</span></a></li>
-                  <li><a href="https://github.com/inference-sim/blis-vllm"><span class="provname">blis-vllm</span> <span class="provrole">engine</span></a></li>
-                  <li><a href="https://github.com/inference-sim/blis-schemas"><span class="provname">blis-schemas</span> <span class="provrole">contracts</span></a></li>
+                  <li><a href="https://github.com/inference-sim/blis-substrate"><span class="provname">blis-substrate</span> <span class="provrole">contracts, inputs, calibration, pricing</span></a></li>
+                  <li><a href="https://github.com/inference-sim/blis-vllm"><span class="provname">blis-vllm</span> <span class="provrole">vLLM engine</span></a></li>
+                  <li><a href="https://github.com/inference-sim/blis-sglang"><span class="provname">blis-sglang</span> <span class="provrole">SGLang engine</span></a></li>
+                  <li><a href="https://github.com/inference-sim/llm-d-router"><span class="provname">llm-d-router</span> <span class="provrole">router fork</span></a></li>
                 </ul>
               </div>
             </div>
@@ -886,17 +897,33 @@
         <section class="section">
           <div class="wrap">
             <div class="sectionhead">
-              <h2>Papers and write-ups</h2>
+              <h2>Papers, write-ups, and talks</h2>
               <span class="note">Most of the blog posts are on the AI-native Systems Research site.</span>
             </div>
             <div class="pubs">
+              <a class="pub" href="https://www.youtube.com/watch?v=UooQd0QU7go">
+                <span class="pubwhen">Nov 2026</span>
+                <span>
+                  <span class="pubtitle">Simulate, Evolve, Validate, Ship: AI-Discovered Algorithms for LLM Serving Stacks</span>
+                  <span class="pubwho">KubeCon NA 2026 talk on the loop behind three llm-d contributions: evolve policies in simulation, validate them on hardware, ship them as llm-d code.</span>
+                </span>
+                <span class="pubkind talk">talk</span>
+              </a>
+              <a class="pub" href="https://www.youtube.com/watch?v=XsYKE1Vs03g">
+                <span class="pubwhen">Nov 2026</span>
+                <span>
+                  <span class="pubtitle">From Routing Weights to Tail Latency: Simulating Kubernetes-Native LLM Inference Without GPUs</span>
+                  <span class="pubwho">KubeCon NA 2026 talk on turning routing, KV-cache and autoscaler dynamics into deterministic simulated events.</span>
+                </span>
+                <span class="pubkind talk">talk</span>
+              </a>
               <a class="pub" href="https://arxiv.org/abs/2610.14255">
                 <span class="pubwhen">Oct 2026</span>
                 <span>
                   <span class="pubtitle">Simulate Before You Scale: High-Fidelity LLM Inference Planning Without GPUs</span>
                   <span class="pubwho">Guhathakurta, Toslali, Parthasarathy, Chen, Kalantar, Masluk, Ramani, Tantawi, Oliveira. Accepted at ACM SIGMETRICS 2027. arXiv:2610.14255</span>
                 </span>
-                <span class="pubkind">paper</span>
+                <span class="pubkind paper">paper</span>
               </a>
               <a class="pub" href="https://ai-native-systems-research.github.io/ai-native-systems-research/blog/2026/08/06/what-weve-learned-about-modeling-llm-latency/">
                 <span class="pubwhen">Aug 2026</span>
@@ -904,7 +931,7 @@
                   <span class="pubtitle">What We&rsquo;ve Learned About Modeling LLM Latency</span>
                   <span class="pubwho">How one forward pass is predicted on a CPU, how well that holds on models and accelerators it never trained on, and where it still falls short.</span>
                 </span>
-                <span class="pubkind">blog</span>
+                <span class="pubkind blog">blog</span>
               </a>
               <a class="pub" href="https://ai-native-systems-research.github.io/ai-native-systems-research/blog/2026/07/27/from-simulation-to-production-part-ii-soft-reflective-flow-control-for-llm-d/">
                 <span class="pubwhen">Jul 2026</span>
@@ -912,7 +939,7 @@
                   <span class="pubtitle">From Simulation to Production Part II: Soft-Reflective Flow Control for llm-d</span>
                   <span class="pubwho">Simulation-driven discovery of a soft-reflective ceiling policy, cutting critical-class TTFT by up to 98% near capacity.</span>
                 </span>
-                <span class="pubkind">blog</span>
+                <span class="pubkind blog">blog</span>
               </a>
               <a class="pub" href="https://ai-native-systems-research.github.io/ai-native-systems-research/blog/2026/06/05/blis-evolving-llm-d-at-simulation-speed/">
                 <span class="pubwhen">Jun 2026</span>
@@ -920,7 +947,7 @@
                   <span class="pubtitle">BLIS: Evolving llm-d at Simulation Speed</span>
                   <span class="pubwho">Coupled routing, admission, batching and autoscaling policies, and two case studies showing where calibration holds and where it does not.</span>
                 </span>
-                <span class="pubkind">blog</span>
+                <span class="pubkind blog">blog</span>
               </a>
               <a class="pub" href="https://ai-native-systems-research.github.io/ai-native-systems-research/blog/2026/05/13/from-simulation-to-production-how-an-ai-native-pipeline-discovered-a-better-admission-controller-for-llm-d/">
                 <span class="pubwhen">May 2026</span>
@@ -928,7 +955,7 @@
                   <span class="pubtitle">From Simulation to Production: How an AI-Native Pipeline Discovered a Better Admission Controller for llm-d</span>
                   <span class="pubwho">Closing the loop end to end: observe, reason, change, validate, deploy.</span>
                 </span>
-                <span class="pubkind">blog</span>
+                <span class="pubkind blog">blog</span>
               </a>
               <a class="pub" href="https://ai-native-systems-research.github.io/ai-native-systems-research/blog/2026/04/09/the-physics-of-high-fidelity-distributed-inference-platform-simulation/">
                 <span class="pubwhen">Apr 2026</span>
@@ -936,7 +963,7 @@
                   <span class="pubtitle">The Physics of High-Fidelity Distributed Inference Platform Simulation</span>
                   <span class="pubwho">What it takes to make a discrete-event simulator faithful enough to guide capacity planning at production scale.</span>
                 </span>
-                <span class="pubkind">blog</span>
+                <span class="pubkind blog">blog</span>
               </a>
               <a class="pub" href="https://ai-native-systems-research.github.io/ai-native-systems-research/blog/2026/03/05/why-simulate-before-you-scale/">
                 <span class="pubwhen">Mar 2026</span>
@@ -944,7 +971,7 @@
                   <span class="pubtitle">Why Simulate Before You Scale</span>
                   <span class="pubwho">A flight-simulator approach to capacity planning that runs on a laptop, with no accelerators required.</span>
                 </span>
-                <span class="pubkind">blog</span>
+                <span class="pubkind blog">blog</span>
               </a>
             </div>
           </div>
@@ -960,14 +987,14 @@
                 <b>BLIS is a digital twin of llm-d</b>, the Kubernetes-native stack for distributed
                 LLM inference. It is an incubating llm-d component: llm-d deploys and scales serving
                 engines across a cluster, and BLIS answers the question that comes first, which is
-                what to deploy. The flags a search returns,
+                what to deploy. The vLLM flags a search returns,
                 <span class="mono">max-num-seqs</span>,
                 <span class="mono">max-num-batched-tokens</span> and tensor-parallel width, are the
                 knobs you then set on a real deployment.
               </p>
               <p>
                 It is a twin because it runs llm-d's own code, not a model of it. Every
-                multi-instance cluster routes through the real Endpoint Picker embedded in-process,
+                multi-instance cluster routes through the real Endpoint Picker, built from a pinned fork of the llm-d router and embedded in-process,
                 reading a deployment's own
                 <span class="mono">EndpointPickerConfig</span>, EPP flags and
                 <span class="mono">InferencePool</span> and

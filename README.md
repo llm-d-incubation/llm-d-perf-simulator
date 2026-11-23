@@ -2,8 +2,8 @@
 
 The landing page for **BLIS**, the llm-d performance simulator: a single
 self-contained `index.html` that states what BLIS answers, links the dashboards a
-visitor can open, shows how a prediction is made, and lists the papers and
-write-ups.
+visitor can open, shows how a prediction is made, and lists the papers, write-ups,
+and talks.
 
 BLIS is an incubating component of [llm-d](https://llm-d.ai), the Kubernetes-native
 stack for distributed LLM inference. llm-d deploys and scales serving engines across
@@ -20,8 +20,9 @@ index.html                     the entire page: markup, CSS and inline SVG
 .github/workflows/pages.yml    deploys to GitHub Pages on push to main
 ```
 
-No build step, no package manager, no JavaScript. Open `index.html` in a browser
-and you are looking at production.
+No build step, no package manager. The only JavaScript is a small inline script that
+shows the simulator's GitHub star count and stays hidden if the fetch fails. Open
+`index.html` in a browser and you are looking at production.
 
 ## Where it links
 
@@ -30,7 +31,12 @@ and you are looking at production.
 | [blis-config-search](https://inference-sim.github.io/blis-config-search/) | Pareto-optimal serving configurations, one report per scenario |
 | [accuracy-dashboard](https://inference-sim.github.io/accuracy-dashboard/) | Predicted vs measured latency, broken out per model |
 | [inference-sim](https://github.com/inference-sim/inference-sim) | The simulator source, Apache-2.0 |
-| [blis-catalog](https://github.com/inference-sim/blis-catalog), [blis-registry](https://github.com/inference-sim/blis-registry), [blis-latency-kernel](https://github.com/inference-sim/blis-latency-kernel), [blis-schemas](https://github.com/inference-sim/blis-schemas) | The versioned pieces behind a prediction |
+| [blis-substrate](https://github.com/inference-sim/blis-substrate) | Contracts, catalog, coefficient registry and cost model behind a prediction |
+| [blis-vllm](https://github.com/inference-sim/blis-vllm), [blis-sglang](https://github.com/inference-sim/blis-sglang) | The vLLM and SGLang engine models the simulator steps |
+| [llm-d-router](https://github.com/inference-sim/llm-d-router) | The fork of the llm-d router the simulator embeds |
+
+`blis-catalog`, `blis-registry`, `blis-latency-kernel` and `blis-schemas` were merged
+into `blis-substrate` and are archived; do not link them.
 
 ## Working on it
 
@@ -66,6 +72,7 @@ sites, not invented here:
 | Paper / panel | `#f7f9f6` / `#fff` |
 | Ink / muted | `#171c1a` / `#5b6660` |
 | Accent | `#1f6e5c`, ink `#0f4438`, soft `#d9e9e1` |
+| Tag colors | paper uses the accent; blog uses alt ink `#34366e`, bg `#dcdcf0`, line `#7679c4`; talk uses warn ink `#7a4a12`, bg `#f3e3c9`, line `#d8b984` |
 | Type | IBM Plex Sans and IBM Plex Mono, 15px base |
 
 Light mode only (`color-scheme: light`), matching the dashboards. Keep it that way
