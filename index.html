@@ -21,6 +21,12 @@
         --accent-ink: #0f4438;
         --accent-soft: #d9e9e1;
         --over-ink: #a3301f;
+        --alt-ink: #34366e;
+        --alt-bg: #dcdcf0;
+        --alt-line: #7679c4;
+        --warn-ink: #7a4a12;
+        --warn-bg: #f3e3c9;
+        --warn-line: #d8b984;
         --font-sans: "IBM Plex Sans", -apple-system, "Segoe UI", system-ui, sans-serif;
         --font-mono: "IBM Plex Mono", "SFMono-Regular", ui-monospace, Menlo, monospace;
         --measure: 1160px;
@@ -481,7 +487,11 @@
         padding: 2px 7px;
         white-space: nowrap;
       }
-      .pub:hover .pubkind { border-color: var(--accent); color: var(--accent-ink); }
+      /* One color per kind, from the tag palettes the dashboards share. */
+      .pubkind.paper { color: var(--accent-ink); background: var(--accent-soft); border-color: var(--accent); }
+      .pubkind.blog { color: var(--alt-ink); background: var(--alt-bg); border-color: var(--alt-line); }
+      .pubkind.talk { color: var(--warn-ink); background: var(--warn-bg); border-color: var(--warn-line); }
+      .pub:hover .pubkind { border-color: currentColor; }
       @media (max-width: 640px) {
         .pub { grid-template-columns: minmax(0, 1fr) auto; }
         .pubwhen { grid-column: 1 / -1; order: -1; }
@@ -897,7 +907,7 @@
                   <span class="pubtitle">Simulate, Evolve, Validate, Ship: AI-Discovered Algorithms for LLM Serving Stacks</span>
                   <span class="pubwho">KubeCon NA 2026 talk on the loop behind three llm-d contributions: evolve policies in simulation, validate them on hardware, ship them as llm-d code.</span>
                 </span>
-                <span class="pubkind">talk</span>
+                <span class="pubkind talk">talk</span>
               </a>
               <a class="pub" href="https://www.youtube.com/watch?v=XsYKE1Vs03g">
                 <span class="pubwhen">Nov 2026</span>
@@ -905,7 +915,7 @@
                   <span class="pubtitle">From Routing Weights to Tail Latency: Simulating Kubernetes-Native LLM Inference Without GPUs</span>
                   <span class="pubwho">KubeCon NA 2026 talk on turning routing, KV-cache and autoscaler dynamics into deterministic simulated events.</span>
                 </span>
-                <span class="pubkind">talk</span>
+                <span class="pubkind talk">talk</span>
               </a>
               <a class="pub" href="https://arxiv.org/abs/2610.14255">
                 <span class="pubwhen">Oct 2026</span>
@@ -913,7 +923,7 @@
                   <span class="pubtitle">Simulate Before You Scale: High-Fidelity LLM Inference Planning Without GPUs</span>
                   <span class="pubwho">Guhathakurta, Toslali, Parthasarathy, Chen, Kalantar, Masluk, Ramani, Tantawi, Oliveira. Accepted at ACM SIGMETRICS 2027. arXiv:2610.14255</span>
                 </span>
-                <span class="pubkind">paper</span>
+                <span class="pubkind paper">paper</span>
               </a>
               <a class="pub" href="https://ai-native-systems-research.github.io/ai-native-systems-research/blog/2026/08/06/what-weve-learned-about-modeling-llm-latency/">
                 <span class="pubwhen">Aug 2026</span>
@@ -921,7 +931,7 @@
                   <span class="pubtitle">What We&rsquo;ve Learned About Modeling LLM Latency</span>
                   <span class="pubwho">How one forward pass is predicted on a CPU, how well that holds on models and accelerators it never trained on, and where it still falls short.</span>
                 </span>
-                <span class="pubkind">blog</span>
+                <span class="pubkind blog">blog</span>
               </a>
               <a class="pub" href="https://ai-native-systems-research.github.io/ai-native-systems-research/blog/2026/07/27/from-simulation-to-production-part-ii-soft-reflective-flow-control-for-llm-d/">
                 <span class="pubwhen">Jul 2026</span>
@@ -929,7 +939,7 @@
                   <span class="pubtitle">From Simulation to Production Part II: Soft-Reflective Flow Control for llm-d</span>
                   <span class="pubwho">Simulation-driven discovery of a soft-reflective ceiling policy, cutting critical-class TTFT by up to 98% near capacity.</span>
                 </span>
-                <span class="pubkind">blog</span>
+                <span class="pubkind blog">blog</span>
               </a>
               <a class="pub" href="https://ai-native-systems-research.github.io/ai-native-systems-research/blog/2026/06/05/blis-evolving-llm-d-at-simulation-speed/">
                 <span class="pubwhen">Jun 2026</span>
@@ -937,7 +947,7 @@
                   <span class="pubtitle">BLIS: Evolving llm-d at Simulation Speed</span>
                   <span class="pubwho">Coupled routing, admission, batching and autoscaling policies, and two case studies showing where calibration holds and where it does not.</span>
                 </span>
-                <span class="pubkind">blog</span>
+                <span class="pubkind blog">blog</span>
               </a>
               <a class="pub" href="https://ai-native-systems-research.github.io/ai-native-systems-research/blog/2026/05/13/from-simulation-to-production-how-an-ai-native-pipeline-discovered-a-better-admission-controller-for-llm-d/">
                 <span class="pubwhen">May 2026</span>
@@ -945,7 +955,7 @@
                   <span class="pubtitle">From Simulation to Production: How an AI-Native Pipeline Discovered a Better Admission Controller for llm-d</span>
                   <span class="pubwho">Closing the loop end to end: observe, reason, change, validate, deploy.</span>
                 </span>
-                <span class="pubkind">blog</span>
+                <span class="pubkind blog">blog</span>
               </a>
               <a class="pub" href="https://ai-native-systems-research.github.io/ai-native-systems-research/blog/2026/04/09/the-physics-of-high-fidelity-distributed-inference-platform-simulation/">
                 <span class="pubwhen">Apr 2026</span>
@@ -953,7 +963,7 @@
                   <span class="pubtitle">The Physics of High-Fidelity Distributed Inference Platform Simulation</span>
                   <span class="pubwho">What it takes to make a discrete-event simulator faithful enough to guide capacity planning at production scale.</span>
                 </span>
-                <span class="pubkind">blog</span>
+                <span class="pubkind blog">blog</span>
               </a>
               <a class="pub" href="https://ai-native-systems-research.github.io/ai-native-systems-research/blog/2026/03/05/why-simulate-before-you-scale/">
                 <span class="pubwhen">Mar 2026</span>
@@ -961,7 +971,7 @@
                   <span class="pubtitle">Why Simulate Before You Scale</span>
                   <span class="pubwho">A flight-simulator approach to capacity planning that runs on a laptop, with no accelerators required.</span>
                 </span>
-                <span class="pubkind">blog</span>
+                <span class="pubkind blog">blog</span>
               </a>
             </div>
           </div>
