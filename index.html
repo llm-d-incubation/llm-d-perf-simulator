@@ -770,7 +770,7 @@
               <figure>
                 <div class="figscroll">
                 <svg viewBox="0 0 1020 330" role="img"
-                  aria-label="Pipeline annotated with the repository behind each stage. Model graph, chip and calibration coefficients come from blis-substrate's catalog and registry; blis-substrate's kernel prices one forward pass, which feeds a discrete-event simulation of routing, scheduling and KV cache, run by inference-sim with the blis-vllm and blis-sglang engine models, that returns serving metrics; the sweep runs that simulation once per candidate and scores each under the workload; a filter drops any candidate that another matches or beats on every metric while winning on at least one, leaving the frontier. blis-substrate's contracts define the interfaces between every stage.">
+                  aria-label="Pipeline annotated with the repository behind each stage. Model graph, chip and calibration coefficients come from inference-sim's substrate catalog and registry; the substrate kernel prices one forward pass, which feeds a discrete-event simulation of routing, scheduling and KV cache, run by inference-sim with its vLLM and SGLang engine models, that returns serving metrics; the sweep runs that simulation once per candidate and scores each under the workload; a filter drops any candidate that another matches or beats on every metric while winning on at least one, leaving the frontier. The substrate contracts define the interfaces between every stage.">
                   <defs>
                     <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5"
                       markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -794,13 +794,13 @@
                   </g>
                   <text class="dlabel" x="28" y="53">model graph</text>
                   <text class="dsub" x="28" y="68">layers, widths, MoE</text>
-                  <text class="drepo" x="28" y="84">blis-substrate/catalog</text>
+                  <text class="drepo" x="28" y="84">substrate/catalog</text>
                   <text class="dlabel" x="28" y="121">chip</text>
                   <text class="dsub" x="28" y="136">flops, bandwidth, HBM</text>
-                  <text class="drepo" x="28" y="152">blis-substrate/catalog</text>
+                  <text class="drepo" x="28" y="152">substrate/catalog</text>
                   <text class="dlabel" x="28" y="189">coefficients</text>
                   <text class="dsub" x="28" y="204">fitted once, versioned</text>
-                  <text class="drepo" x="28" y="220">blis-substrate/registry</text>
+                  <text class="drepo" x="28" y="220">substrate/registry</text>
 
                   <g stroke="var(--line-strong)" stroke-width="1.25" fill="none">
                     <path d="M182 63 H224" />
@@ -814,7 +814,7 @@
                     fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5" />
                   <text class="dlabel" x="266" y="69">price one</text>
                   <text class="dlabel" x="266" y="85">forward pass</text>
-                  <text class="drepo" x="266" y="101">blis-substrate/kernel</text>
+                  <text class="drepo" x="266" y="101">substrate/kernel</text>
 
                   <path d="M337 110 V134" stroke="var(--accent)" stroke-width="1.5"
                     fill="none" marker-end="url(#aha)" />
@@ -826,7 +826,7 @@
                   <text class="dsub" x="266" y="177">routing, scheduling,</text>
                   <text class="dsub" x="266" y="190">KV cache</text>
                   <text class="drepo" x="266" y="207">inference-sim</text>
-                  <text class="drepo" x="266" y="220">blis-vllm, blis-sglang</text>
+                  <text class="drepo" x="266" y="220">engines/vllm, sglang</text>
 
                   <path d="M422 175 H524" stroke="var(--accent)" stroke-width="1.5"
                     fill="none" marker-end="url(#aha)" />
@@ -864,7 +864,7 @@
                   <text class="dsub" x="814" y="132">config-search</text>
 
                   <path d="M14 300H1006" stroke="var(--line)" stroke-width="1" fill="none" />
-                  <text class="drepo" x="14" y="320">blis-substrate/contracts</text>
+                  <text class="drepo" x="14" y="320">substrate/contracts</text>
                   <text class="dsub" x="164" y="320">define the contract every box above reads and writes</text>
                 </svg>
                 </div>
@@ -880,13 +880,14 @@
               </figure>
               <div class="provenance">
                 <p class="provlead">
-                  Each simulator release pins an exact commit of every repository below, so every
-                  number traces back to the exact input behind it.
+                  Each simulator release is a single inference-sim tag that holds the substrate and
+                  both engine models, and its stack.json pins the router fork and the vLLM and
+                  SGLang commits they model, so every number traces back to the exact input behind it.
                 </p>
                 <ul class="provlist">
-                  <li><a href="https://github.com/inference-sim/blis-substrate"><span class="provname">blis-substrate</span> <span class="provrole">contracts, inputs, calibration, pricing</span></a></li>
-                  <li><a href="https://github.com/inference-sim/blis-vllm"><span class="provname">blis-vllm</span> <span class="provrole">vLLM engine</span></a></li>
-                  <li><a href="https://github.com/inference-sim/blis-sglang"><span class="provname">blis-sglang</span> <span class="provrole">SGLang engine</span></a></li>
+                  <li><a href="https://github.com/inference-sim/inference-sim/tree/main/substrate"><span class="provname">substrate/</span> <span class="provrole">contracts, inputs, calibration, pricing</span></a></li>
+                  <li><a href="https://github.com/inference-sim/inference-sim/tree/main/engines/vllm"><span class="provname">engines/vllm</span> <span class="provrole">vLLM engine model</span></a></li>
+                  <li><a href="https://github.com/inference-sim/inference-sim/tree/main/engines/sglang"><span class="provname">engines/sglang</span> <span class="provrole">SGLang engine model</span></a></li>
                   <li><a href="https://github.com/inference-sim/llm-d-router"><span class="provname">llm-d-router</span> <span class="provrole">router fork</span></a></li>
                 </ul>
               </div>

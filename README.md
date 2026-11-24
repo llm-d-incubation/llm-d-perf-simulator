@@ -31,12 +31,18 @@ shows the simulator's GitHub star count and stays hidden if the fetch fails. Ope
 | [blis-config-search](https://inference-sim.github.io/blis-config-search/) | Pareto-optimal serving configurations, one report per scenario |
 | [accuracy-dashboard](https://inference-sim.github.io/accuracy-dashboard/) | Predicted vs measured latency, broken out per model |
 | [inference-sim](https://github.com/inference-sim/inference-sim) | The simulator source, Apache-2.0 |
-| [blis-substrate](https://github.com/inference-sim/blis-substrate) | Contracts, catalog, coefficient registry and cost model behind a prediction |
-| [blis-vllm](https://github.com/inference-sim/blis-vllm), [blis-sglang](https://github.com/inference-sim/blis-sglang) | The vLLM and SGLang engine models the simulator steps |
+| [inference-sim/substrate](https://github.com/inference-sim/inference-sim/tree/main/substrate) | Contracts, catalog, coefficient registry and cost model behind a prediction |
+| [inference-sim/engines](https://github.com/inference-sim/inference-sim/tree/main/engines) | The vLLM and SGLang engine models the simulator steps (`engines/vllm`, `engines/sglang`) |
 | [llm-d-router](https://github.com/inference-sim/llm-d-router) | The fork of the llm-d router the simulator embeds |
 
-`blis-catalog`, `blis-registry`, `blis-latency-kernel` and `blis-schemas` were merged
-into `blis-substrate` and are archived; do not link them.
+From [v0.19.0](https://github.com/inference-sim/inference-sim/releases/tag/v0.19.0)
+(M3.2), `blis-substrate`, `blis-vllm` and `blis-sglang` are directories of
+`inference-sim` (`substrate/`, `engines/vllm`, `engines/sglang`), not separate modules,
+and the standalone repositories stopped at M3.1. A release's `stack.json` pins only the
+router fork and the vLLM and SGLang commits the engine models follow. Link the
+directories, not the old repositories. Earlier still, `blis-catalog`, `blis-registry`,
+`blis-latency-kernel` and `blis-schemas` were merged into `blis-substrate` and are
+archived; do not link them either.
 
 ## Working on it
 
